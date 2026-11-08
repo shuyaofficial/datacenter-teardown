@@ -42,6 +42,9 @@ h1{font-size:30px;margin:0 0 10px;letter-spacing:.02em}
 .card h2 i{display:block;width:4px;height:18px;background:var(--accent)}
 .card p{margin:0;color:var(--sub);line-height:1.7;font-size:15px}
 .card .go{margin-top:10px;font-size:14px;font-weight:700;color:var(--accent)}
+.card.hero{padding:0;overflow:hidden}
+.card.hero img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#d5dce0}
+.card.hero .in{padding:18px 22px 20px}
 .soon{background:transparent;border-style:dashed;color:var(--mute)}
 .soon p{color:var(--mute)}
 footer{margin-top:40px;font-size:12px;line-height:1.8;color:var(--mute)}
@@ -52,7 +55,22 @@ footer a{color:var(--sub)}
 <main>
 <p class="kicker">datacenter-teardown</p>
 <h1>データセンターの機器を分解して見る</h1>
-<p class="lead">ネットワーク機器やサーバーの中で何が起きているかを、ブラウザで触れる3Dにしました。放っておくと自動で案内が流れ、どこかを押すと自分で操作できます。数値には出典を付けています。</p>
+<p class="lead">AI データセンターの1部屋と、その中のネットワーク機器やサーバーで何が起きているかを、ブラウザで触れる3Dにしました。放っておくと自動で案内が流れ、どこかを押すと自分で操作できます。数値には出典を付けています。</p>
+
+<a class="card hero" href="room/index.html">
+  <img src="room-read/img/overview-800.webp" width="800" height="450" alt="Blender で描いた AI データホールの冷たい通路。黒い GPU ラックの列と、前面からまとめられた黄色い光ファイバ、天井の黄色いケーブルトレイ" loading="lazy">
+  <div class="in">
+  <h2><i></i>AI データホールを歩く（部屋ツアー）</h2>
+  <p>GPU ラック8本の1列、背面の温かい通路、冷却装置（CDU）まで、公開資料の寸法と並びに合わせて Blender で作った部屋。PC は3Dで歩き、スマホは 360° 写真で回る。質問1回でデータ・電気・熱がどう流れるかを、自動ツアーと「流れを見る」で見せる。</p>
+  <p class="go">歩いてみる →</p>
+  </div>
+</a>
+
+<a class="card" href="room-read/index.html">
+  <h2><i></i>AI データホールの読み物</h2>
+  <p>スクロールすると通路を進む。全景・GPU ラック・ネットワーク・電気・液冷・部屋の外を、絵と数字で短く読む。スマホ向け。</p>
+  <p class="go">読む →</p>
+</a>
 
 <a class="card" href="switch-live.html">
   <h2><i></i>スイッチ（Catalyst 9300-48P を模した 1U）</h2>
@@ -67,7 +85,7 @@ footer a{color:var(--sub)}
 </a>
 
 <footer>
-  非公式の教材です。Cisco Systems・NVIDIA とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField は NVIDIA Corporation の商標です。形は寸法を合わせた簡略形状です。<br>
+  非公式の教材です。Cisco Systems・NVIDIA とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField・Quantum は NVIDIA Corporation の商標です。形は寸法を合わせた簡略形状で、部屋の絵は Blender で描いたもの（実在の施設の写真ではありません）です。<br>
   ソースと出典: <a href="https://github.com/shuyaofficial/datacenter-teardown">github.com/shuyaofficial/datacenter-teardown</a>
   ／ 同じ作りのビル設備版: <a href="https://shuyaofficial.github.io/building-teardown/">building-teardown</a><br>
   使っている OSS のライセンス: <a href="https://github.com/shuyaofficial/datacenter-teardown/blob/main/THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>

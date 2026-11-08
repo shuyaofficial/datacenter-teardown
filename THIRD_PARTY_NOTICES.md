@@ -7,6 +7,8 @@
 | [elvarofficial/teardown](https://github.com/elvarofficial/teardown) | シミュレータの土台（kit の runtime・ビルド・静止画と動画の書き出し・効果音の合成） | MIT（Copyright (c) 2026 elvarofficial, Copyright (c) 2026 whaleyxbt） |
 | [whaleyxbt/claude-motion](https://github.com/whaleyxbt/claude-motion) | teardown が受け継いだ kit・フレーム書き出し・効果音エンジン | MIT（Copyright (c) 2026 whaleyxbt） |
 | [three.js](https://github.com/mrdoob/three.js) | 3D 描画（ページに同梱） | MIT（Copyright © 2010-2026 three.js authors） |
+| [Draco](https://github.com/google/draco)（three.js の examples に同梱の decoder） | 部屋ツアーの 3D データの展開（`room/vendor/`） | Apache License 2.0（Copyright Google LLC） |
+| [Blender](https://www.blender.org/) | 部屋の絵と 3D データを作る道具（ページには同梱しない。出力した絵とデータに Blender のライセンスは及ばない） | GPL（道具として使用） |
 | [Inter](https://github.com/rsms/inter)（@fontsource-variable/inter） | 英数字の書体（ページに同梱） | SIL Open Font License 1.1 |
 | [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono)（@fontsource/jetbrains-mono） | 数字の書体（ページに同梱） | SIL Open Font License 1.1 |
 

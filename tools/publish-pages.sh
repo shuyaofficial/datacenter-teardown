@@ -18,6 +18,15 @@ for n in $NAMES; do
 done
 # 入口はハブの代わりに site/index.html（機器が増えたらここに足す）
 cp site/index.html docs/index.html
+# 部屋ツアーと読み物ページは複数ファイルの一式。素材は Blender（room-blender/）で作り、
+# room-web/build-site.sh と room-read/build.sh が teardown-out/room/ に組み立てる
+if [[ -f teardown-out/room/site/index.html && -f teardown-out/room/read-site/index.html ]]; then
+  rm -rf docs/room docs/room-read
+  cp -RL teardown-out/room/site docs/room
+  cp -RL teardown-out/room/read-site docs/room-read
+else
+  echo "部屋の一式が無いので docs/room と docs/room-read はそのまま（room-web/build-site.sh と room-read/build.sh を先に）"
+fi
 # ビルドは著作権コメントを落とす（esbuild の legalComments: 'none'）ので、各ページの先頭に表示を差し込む
 for f in docs/*.html(N); do
   python3 - "$f" tools/license-header.html <<'PY'

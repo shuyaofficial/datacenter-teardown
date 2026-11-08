@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI データホールを歩く</title>
+<!-- build-site.sh がこの3つの値と importmap を書き換える。?data=v2 で本番の素材に切り替わる -->
+<meta name="data-root" content="./data/">
+<meta name="link-base" content="../">
+<meta name="data-set" content="v2">
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#eef1f3;--ink:#1d2124;--sub:#5b6670;--line:#d3d9de;--accent:#0f9fa8;--panel:rgb(250 251 252 / .95)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font-family:'Hiragino Sans','Noto Sans JP',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+canvas{display:block;touch-action:none;position:fixed;inset:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.ui{position:fixed;z-index:5}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 6px rgb(20 30 40 / .12)}
+#info{left:16px;top:16px;max-width:380px;padding:12px 16px 13px}
+#info .kicker{font-size:12px;color:var(--sub);letter-spacing:.04em}
+#info h1{margin:2px 0 4px;font-size:17px;font-weight:700}
+#info p{margin:0;font-size:13.5px;line-height:1.65}
+#tools{right:16px;top:16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 32px)}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;line-height:1.2;white-space:nowrap;box-shadow:0 1px 4px rgb(20 30 40 / .1)}
+.btn[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg{display:flex;padding:3px;gap:2px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
+.seg button{border:0;background:none;border-radius:999px;padding:5px 11px;font-size:12.5px;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+#chapters{right:16px;top:60px}
+#chapters[hidden]{display:none}
+#hint{left:16px;bottom:44px;padding:7px 12px;font-size:12px;color:var(--sub)}
+#tourbar{left:50%;transform:translateX(-50%);bottom:44px;padding:7px 14px;font-size:12.5px;display:flex;gap:10px;align-items:center;white-space:nowrap}
+#tourbar[hidden]{display:none}
+#tourbar .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+#note{left:0;right:0;bottom:0;padding:6px 16px calc(6px + env(safe-area-inset-bottom));background:rgb(238 241 243 / .92);border-top:1px solid var(--line);font-size:10.5px;line-height:1.5;color:var(--sub)}
+#tags,#marks{position:fixed;inset:0;pointer-events:none;z-index:3}
+.tag{--lift:0px;--dx:0px;position:absolute;transform:translate(-50%,calc(-100% - 17px - var(--lift)));pointer-events:auto;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 9px 5px;font-size:12px;line-height:1.35;text-align:left;box-shadow:0 1px 5px rgb(20 30 40 / .18);white-space:nowrap}
+.tag b{display:block;font-size:12.5px;font-weight:700}
+.tag span{color:var(--sub)}
+.tag::after{content:'';position:absolute;left:calc(50% + var(--dx));bottom:calc(-12px - var(--lift));width:1px;height:calc(12px + var(--lift));background:var(--ink);opacity:.5}
+.tag i{position:absolute;left:calc(50% + var(--dx));bottom:calc(-22px - var(--lift));width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px rgb(20 30 40 / .25)}
+.tag[aria-pressed=true]{border-color:var(--accent)}
+.mark{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 11px 5px 9px;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:6px;box-shadow:0 1px 5px rgb(20 30 40 / .18)}
+.mark svg{width:14px;height:14px;flex:none}
+.go{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:0}
+.go .ring{width:52px;height:52px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 2px 8px rgb(20 30 40 / .25)}
+.go svg{width:24px;height:24px}
+.go .lbl{font-size:11.5px;background:var(--panel);border-radius:6px;padding:2px 7px;border:1px solid var(--line);white-space:nowrap}
+#card{z-index:8;padding:18px 20px 18px;display:flex;flex-direction:column;gap:8px;background:#fafbfc}
+#card[hidden]{display:none}
+#card h2{margin:0;font-size:17px;padding-right:32px}
+#card .line{font-size:13px;color:var(--accent);font-weight:600}
+#card p{margin:0;font-size:14px;line-height:1.75}
+#card .close{position:absolute;right:10px;top:10px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:16px;line-height:1}
+#card .more{align-self:flex-start;margin-top:4px;text-decoration:none;background:var(--accent);color:#fff;border-radius:999px;padding:9px 16px;font-size:13.5px}
+#card .land{font-size:12px;color:var(--sub)}
+#fade{position:fixed;inset:0;background:var(--bg);z-index:20;transition:opacity .4s}
+#fade.out{opacity:0;pointer-events:none}
+#err{position:fixed;inset:0;display:grid;place-items:center;z-index:30;padding:24px;text-align:center;font-size:14px}
+#err[hidden]{display:none}
+/* PC: カードは右の板 */
+body.pc #card{right:16px;top:112px;width:340px;max-height:calc(100vh - 170px);overflow:auto}
+/* スマホ: カードは下から */
+body.phone #info{left:10px;right:10px;top:auto;bottom:calc(52px + env(safe-area-inset-bottom));max-width:none;padding:10px 13px 11px}
+body.phone #info h1{font-size:15px}
+body.phone #info p{font-size:12.5px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.phone #info.open p{display:block}
+body.phone #info .kicker{font-size:11px}
+body.phone #tools{right:10px;top:calc(10px + env(safe-area-inset-top));left:10px;justify-content:flex-end}
+body.phone #chapters{right:10px;top:calc(100px + env(safe-area-inset-top))}
+body.phone #note{font-size:9.5px;padding:5px 10px calc(5px + env(safe-area-inset-bottom))}
+body.phone #card{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;padding:18px 18px calc(20px + env(safe-area-inset-bottom));max-height:70vh;overflow:auto}
+body.phone.carded #info{visibility:hidden}
+@keyframes sheet-up{from{transform:translateY(100%)}}
+body.phone #card:not([hidden]){animation:sheet-up .25s ease-out}
+@media (prefers-reduced-motion: reduce){body.phone #card:not([hidden]){animation:none}}
+body.phone .tag{font-size:11.5px;padding:3px 8px 4px}
+body.phone .tag span{display:none}
+body.phone #hint{display:none}
+body.phone #tourbar{bottom:auto;top:calc(100px + env(safe-area-inset-top));left:10px;right:auto;transform:none;white-space:normal;max-width:calc(100vw - 20px)}
+body.phone.chap #tourbar{top:calc(144px + env(safe-area-inset-top))}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head><body>
+<div id="fade"></div>
+<div id="tags"></div>
+<div id="marks"></div>
+<section id="info" class="ui panel" aria-live="polite"><div class="kicker" id="kicker">AI データホール</div><h1 id="st-title">読み込み中</h1><p id="st-text"></p></section>
+<nav id="tools" class="ui">
+  <div class="seg" role="group" aria-label="見かた">
+    <button id="m-3d" type="button" aria-pressed="false">3D で歩く</button>
+    <button id="m-photo" type="button" aria-pressed="false">写真で見る</button>
+  </div>
+  <button id="b-flows" class="btn" type="button" aria-pressed="false">流れを見る</button>
+  <button id="b-tour" class="btn" type="button" aria-pressed="false">自動ツアー</button>
+  <button id="b-gyro" class="btn" type="button" aria-pressed="false" hidden>傾けて見回す</button>
+</nav>
+<div id="chapters" class="ui seg" role="group" aria-label="流れの章" hidden>
+  <button type="button" data-ch="data" aria-pressed="false">データ</button>
+  <button type="button" data-ch="power" aria-pressed="false">電気</button>
+  <button type="button" data-ch="heat" aria-pressed="false">熱</button>
+</div>
+<div id="hint" class="ui panel">W A S D・矢印キーで歩く　ドラッグで見回す　床の印を押すとそこへ歩く</div>
+<div id="tourbar" class="ui panel" hidden><span class="dot"></span><span id="tour-text">自動ツアー中・どこかを押すと止まります</span></div>
+<aside id="card" class="ui panel" hidden role="dialog" aria-labelledby="card-title">
+  <button class="close" type="button" aria-label="閉じる">✕</button>
+  <h2 id="card-title"></h2><div class="line" id="card-line"></div><p id="card-text"></p>
+  <a class="more" id="card-link" target="_blank" rel="noopener">詳しい分解ページ</a>
+  <div class="land" id="card-land">横向きで開くと見やすい</div>
+</aside>
+<footer id="note" class="ui">非公式の教材。NVIDIA GB200 NVL72 などを模した形で、NVIDIA・GB200・NVLink・Quantum は NVIDIA Corporation の商標。数値は refs.md の出典による</footer>
+<div id="err" hidden></div>
+<script type="module" src="./js/main.js"></script>
+</body></html>

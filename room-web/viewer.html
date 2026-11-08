@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>部屋の焼き込み確認</title>
+<style>html,body{margin:0;height:100%;background:#111;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+// 焼いた glb を照明の計算なしで貼り（MeshBasicMaterial）、Blender のカメラと同じ視点から映す。比較用。
+//   ?dir=../teardown-out/room/v2            room.glb と stations.json のある所
+//   &cams=../teardown-out/room/work-v2/cams.json&id=cmp_cold-in   視点（無ければ dir/camera.json）
+//   &refl=0.35                              床の映り込みの強さ（0 で切る。床は映り込みを除いて焼いてある）
+//   &tone=agx                               three 標準の AgX にする（既定は stations.json の tone = Blender の実測）
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {Reflector} from 'three/addons/objects/Reflector.js';
+const q = new URLSearchParams(location.search);
+const dir = q.get('dir') || '../teardown-out/room/v2';
+const W = +(q.get('w') || innerWidth), H = +(q.get('h') || innerHeight);
+const meta = await (await fetch(dir + '/stations.json')).json().catch(() => ({}));
+const SCALE = meta.scale || 0.5;
+
+const r = new THREE.WebGLRenderer({antialias: true});
+r.setSize(W, H); r.setPixelRatio(1);
+r.outputColorSpace = THREE.SRGBColorSpace;
+if (meta.tone && q.get('tone') !== 'agx') {
+  THREE.ShaderChunk.tonemapping_pars_fragment = THREE.ShaderChunk.tonemapping_pars_fragment.replace(
+    /vec3 CustomToneMapping\( vec3 color \) \{[^}]*\}/, meta.tone.glsl);
+  r.toneMapping = THREE.CustomToneMapping; r.toneMappingExposure = 1;
+} else {
+  r.toneMapping = THREE.AgXToneMapping; r.toneMappingExposure = Math.pow(2, -0.9);
+}
+document.body.appendChild(r.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x111111);
+
+let cam;
+if (q.get('cams')) cam = (await (await fetch(q.get('cams'))).json())[q.get('id') || 'cmp_cold-in'];
+else cam = await (await fetch(dir + '/camera.json')).json();
+const toY = ([x, y, z]) => new THREE.Vector3(x, z, -y);          // Blender の z 上 → three の y 上
+const camera = new THREE.PerspectiveCamera(1, W / H, 0.02, 300);
+const hf = THREE.MathUtils.degToRad(cam.fov_h);
+camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hf / 2) * H / W)); camera.updateProjectionMatrix();
+camera.position.copy(toY(cam.pos)); camera.up.copy(toY(cam.up).normalize());
+const target = toY(cam.look); camera.lookAt(target);
+const ctl = new OrbitControls(camera, r.domElement); ctl.target.copy(target); ctl.update();
+
+const draco = new DRACOLoader().setDecoderPath('./vendor/three/examples/jsm/libs/draco/');
+const gltf = await new GLTFLoader().setDRACOLoader(draco).loadAsync(dir + '/room.glb');
+let floor = null;
+gltf.scene.traverse((o) => {
+  if (!o.isMesh) return;
+  const map = o.material.map; if (map) { map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = r.capabilities.getMaxAnisotropy(); }
+  o.material = new THREE.MeshBasicMaterial({map, color: new THREE.Color(1 / SCALE, 1 / SCALE, 1 / SCALE)});
+  if (o.name === 'floor_reflect' || o.parent?.name === 'floor_reflect') floor = o;
+});
+scene.add(gltf.scene);
+
+// 床の映り込み: 床と同じ形の鏡を床のすぐ上に重ね、フレネルとぼかしをかけて足す
+if (floor && +(q.get('refl') ?? 0.35) > 0) {
+  floor.updateWorldMatrix(true, false);
+  const g = floor.geometry.clone().applyMatrix4(floor.matrixWorld).rotateX(Math.PI / 2);   // 鏡は自分の xy 平面を使う
+  const shader = {
+    name: 'FloorReflection',
+    uniforms: {color: {value: null}, tDiffuse: {value: null}, textureMatrix: {value: null}, texel: {value: new THREE.Vector2(1 / W, 1 / H)}, k: {value: +(q.get('refl') || 0.35)}},
+    vertexShader: `uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vWorld;
+      void main(){ vUv = textureMatrix * vec4(position,1.0); vec4 w = modelMatrix * vec4(position,1.0); vWorld = w.xyz;
+        gl_Position = projectionMatrix * viewMatrix * w; }`,
+    fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 texel; uniform float k; varying vec4 vUv; varying vec3 vWorld;
+      void main(){
+        vec2 uv = vUv.xy / vUv.w; vec3 c = vec3(0.0); float n = 0.0;
+        for (int i = -3; i <= 3; i++) for (int j = -3; j <= 3; j++) {
+          float w = exp(-0.25 * float(i*i + j*j)); c += w * texture2D(tDiffuse, uv + vec2(float(i), float(j)) * texel * 4.0).rgb; n += w; }
+        c /= n;
+        float cosv = abs(normalize(cameraPosition - vWorld).y);
+        float F = 0.045 + 0.955 * pow(1.0 - cosv, 5.0);
+        gl_FragColor = vec4(c * F * k, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+  };
+  const refl = new Reflector(g, {textureWidth: W, textureHeight: H, clipBias: 0.002, shader});
+  refl.rotation.x = -Math.PI / 2; refl.position.y = 0.0006;
+  refl.material.transparent = true; refl.material.blending = THREE.AdditiveBlending; refl.material.depthWrite = false;
+  scene.add(refl);
+}
+// 確認用: stations.json の flows を線で重ねる（&flows=1）
+if (q.get('flows') === '1' && meta.flows) {
+  const col = {'liquid-cold': 0x7fcdd2, 'liquid-warm': 0x0b6f75, data: 0xffd23a, power: 0xff5a1f};
+  for (const f of meta.flows) {
+    const curve = new THREE.CatmullRomCurve3(f.path.map(toY), false, 'catmullrom', 0.0);
+    const m = new THREE.Mesh(new THREE.TubeGeometry(curve, f.path.length * 24, 0.02, 6), new THREE.MeshBasicMaterial({color: col[f.kind] || 0xffffff, toneMapped: false, depthTest: false, transparent: true, opacity: 0.85}));
+    m.renderOrder = 10; scene.add(m);
+  }
+}
+const loop = () => { r.render(scene, camera); requestAnimationFrame(loop); };
+loop();
+setTimeout(() => { window.READY = true; }, 800);
+</script></body></html>

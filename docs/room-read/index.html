@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>AI データセンターの1部屋を歩く</title>
+<meta name="description" content="GPU が動き、電気を使い、熱を出す部屋の一角を、公開資料の数字に合わせて Blender で描いた読み物">
+<link rel="icon" href="data:,">
+<link rel="preload" as="image" href="walk/lo/f000.webp">
+<style>
+:root{--bg:#eef1f3;--panel:#fafbfc;--ink:#1f2427;--sub:#4f5a60;--mute:#6b757b;--line:#d5dce0;--accent:#0f9fa8;--link:#0b6f75;--cool:#7fcdd2;--warm:#0b6f75;--fws:#4f5a60;--stage:#1b2023}
+@media (prefers-color-scheme:dark){
+ :root{--bg:#14181a;--panel:#1d2326;--ink:#e4e9eb;--sub:#b3bdc2;--mute:#8d989d;--line:#343d41;--accent:#0f9fa8;--link:#6fd0d6;--cool:#3d7f83;--warm:#62d1d8;--fws:#9aa5aa;--stage:#0d1011}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Sans','Noto Sans JP',sans-serif;-webkit-font-smoothing:antialiased}
+body{font-size:17px;line-height:1.85;overflow-x:hidden}
+a{color:var(--link)}
+.col{max-width:720px;margin:0 auto;padding:0 20px}
+header{padding:44px 0 28px}
+.kicker{font-size:13px;letter-spacing:.12em;color:var(--mute);margin:0 0 8px}
+h1{font-size:clamp(26px,7vw,36px);line-height:1.35;margin:0 0 14px;letter-spacing:.02em}
+.lead{margin:0 0 14px}
+.note{font-size:14px;color:var(--mute);margin:0}
+.hint{font-size:14px;color:var(--sub);margin:22px 0 0;display:flex;align-items:center;gap:8px}
+.hint::before{content:"";width:2px;height:20px;background:var(--accent)}
+
+/* スクロールで歩く映像 */
+.walk{position:relative;height:420vh;height:420svh;background:var(--stage)}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;justify-content:center}
+.frame{position:relative;width:min(100%,calc(100svh * 9 / 16));height:100%}
+.frame img,.frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.frame img{object-fit:cover}
+.cap{position:absolute;left:14px;right:14px;bottom:calc(22px + env(safe-area-inset-bottom));margin:0;padding:10px 14px;border-radius:8px;
+ background:rgba(20,24,26,.78);color:#f1f4f5;font-size:16px;line-height:1.6;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.cap.on{opacity:1;transform:none}
+.cap b{color:#7fcdd2;font-weight:700;margin-right:.4em}
+.walk.still{height:auto}
+.walk.still .stage{position:static;height:auto;display:block}
+.walk.still .frame{width:min(100%,480px);height:auto;margin:0 auto}
+.walk.still .frame img{position:static;height:auto}
+.walk.still canvas{display:none}
+.walk.still .caps{max-width:720px;margin:0 auto;padding:12px 20px 20px}
+.walk.still .cap{position:static;opacity:1;transform:none;margin:8px 0}
+
+/* 節 */
+section{padding:44px 0 8px}
+.num{font-size:13px;letter-spacing:.12em;color:var(--mute);margin:0 0 4px}
+h2{font-size:23px;line-height:1.45;margin:0 0 14px;text-wrap:balance}
+.nb{display:inline-block}
+figure{margin:0 0 18px}
+.pic{display:block;width:100%;height:auto;border-radius:6px;background:var(--line)}
+figcaption{font-size:14px;color:var(--mute);margin-top:6px;line-height:1.6}
+p{margin:0 0 14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin:18px 0 18px;padding:0;list-style:none}
+.cards li{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px}
+.cards .v{display:block;font-size:22px;font-weight:700;line-height:1.3;white-space:nowrap}
+.cards .k{display:block;font-size:14px;color:var(--sub);line-height:1.5}
+.more{display:block;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;text-decoration:none;color:var(--ink);margin:6px 0 10px}
+.more strong{color:var(--link)}
+.more span{display:block;font-size:14px;color:var(--mute)}
+.loops{display:block;width:100%;max-width:420px;height:auto;margin:6px auto 0}
+.loops text{font-family:'Hiragino Sans','Noto Sans JP',sans-serif}
+.go{display:block;text-align:center;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;border-radius:8px;padding:14px 16px;margin:36px 0 8px}
+footer{border-top:1px solid var(--line);margin-top:44px;padding:24px 0 56px;font-size:14px;line-height:1.75;color:var(--sub)}
+footer h2{font-size:16px;margin:0 0 8px}
+footer ul{padding-left:1.2em;margin:0}
+footer li{margin:0 0 8px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<header class="col">
+ <p class="kicker">datacenter-teardown ／ 読み物</p>
+ <h1>AI データセンターの<span class="nb">1部屋を歩く</span></h1>
+ <p class="lead">ChatGPT や Claude に1回質問すると、どこかの部屋で GPU が動き、電気を使い、熱を出します。その部屋の一角を、公開資料の数字に合わせて作りました。</p>
+ <p class="note">このページの絵はすべて Blender で描いたもので、実在の施設の写真ではありません。</p>
+ <p class="hint">下へスクロールすると、通路を進みます</p>
+</header>
+
+<div class="walk" id="walk" data-frames="150" aria-label="冷たい通路を歩き、ネットワークのラックの前を通って、温かい通路の扉の前まで進む映像">
+ <div class="stage">
+  <div class="frame">
+   <img src="walk/lo/f000.webp" data-hi="walk/f000.webp" width="720" height="1280" alt="冷たい通路の入口。左右に黒いラックが並び、天井に黄色いケーブルのトレイが走る">
+   <canvas aria-hidden="true"></canvas>
+   <div class="caps">
+    <p class="cap" data-from="0" data-to="0.3"><b>冷たい通路</b>ラックは正面から冷たい空気を吸い込みます。</p>
+    <p class="cap" data-from="0.48" data-to="0.74"><b>ネットワークのラック</b>黄色い線は光ファイバです。</p>
+    <p class="cap" data-from="0.86" data-to="1.01"><b>温かい通路の扉</b>この奥に、ラックの背面から出た熱がたまります。</p>
+   </div>
+  </div>
+ </div>
+</div>
+
+<main class="col">
+ <section id="s1">
+  <p class="num">1 ／ 部屋の全景</p>
+  <h2>GPU のラックは 8 本で1組</h2>
+  <figure><img class="pic" src="img/overview-800.webp" srcset="img/overview-800.webp 800w, img/overview.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="冷たい通路の入口から見た部屋。左右に黒いラックの列が奥まで続く"></figure>
+  <p>通路の両側に黒いラックが並びます。GPU のラックは 8 本で1組になり、1組で GPU は 576 個、電気は約 1.2 MW を使います。家庭なら 400 軒ほどの量です（1軒 3 kW で換算）。</p>
+  <p>GPU のラックの両側にネットワークのラック、列の端にストレージと管理のラックが立ちます。</p>
+  <ul class="cards">
+   <li><span class="v">8 本</span><span class="k">GPU ラック1組</span></li>
+   <li><span class="v">576 個</span><span class="k">1組の GPU</span></li>
+   <li><span class="v">約 1.2 MW</span><span class="k">1組の電気</span></li>
+  </ul>
+ </section>
+
+ <section id="s2">
+  <p class="num">2 ／ GPU のラック</p>
+  <h2>1本に GPU が 72 個</h2>
+  <figure><img class="pic" src="img/nvl72-front-800.webp" srcset="img/nvl72-front-800.webp 800w, img/nvl72-front.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="GPU ラックの正面。薄い計算トレイが積み重なり、黄色い光ファイバが前面に刺さる"></figure>
+  <p>高さ 2.2 m、幅 60 cm のラックに GPU が 72 個入っています。72 個は銅のケーブルで直結されていて、1つの大きな GPU のように動きます。</p>
+  <p>前面に見える黄色い線は光ファイバです。ラックの外にある GPU とつながります。</p>
+  <ul class="cards">
+   <li><span class="v">72 個</span><span class="k">1本の GPU</span></li>
+   <li><span class="v">約 120 kW</span><span class="k">1本の電気</span></li>
+   <li><span class="v">1.8 TB/s</span><span class="k">GPU 1個の NVLink</span></li>
+  </ul>
+  <a class="more" href="../nvl72-live.html"><strong>GPU のラックを分解して見る →</strong><span>スマホは横向きで開くと見やすくなります</span></a>
+ </section>
+
+ <section id="s3">
+  <p class="num">3 ／ ネットワークのラック</p>
+  <h2>網は線ごと分かれている</h2>
+  <figure><img class="pic" src="img/network-800.webp" srcset="img/network-800.webp 800w, img/network.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="ネットワークのラック。大きなスイッチが縦に並び、光ファイバが束になって刺さる"></figure>
+  <p>ラックとラックをつなぐスイッチのラックです。GPU どうしの網、データを保存する網、機器を管理する網は、線そのものが別になっています。</p>
+  <p>一番上の小さなスイッチは管理用です。会社のフロアにあるスイッチ（Catalyst など）に一番近い役目をしています。</p>
+  <ul class="cards">
+   <li><span class="v">4 つ</span><span class="k">物理的に分かれた網</span></li>
+   <li><span class="v">約 18 分の1</span><span class="k">ラックの外の速さ（中と比べて）</span></li>
+  </ul>
+  <a class="more" href="../switch-live.html"><strong>スイッチを分解して見る →</strong><span>スマホは横向きで開くと見やすくなります</span></a>
+ </section>
+
+ <section id="s4">
+  <p class="num">4 ／ 電気の通り道</p>
+  <h2>電気は天井のレールから</h2>
+  <figure><img class="pic" src="img/ceiling-800.webp" srcset="img/ceiling-800.webp 800w, img/ceiling.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="通路から天井を見上げた絵。給電用のレール、黄色いケーブルのトレイ、冷却液の配管が段になって走る"></figure>
+  <p>天井のバスウェイ（給電用のレール）から、差し込み口を通って各ラックへ電気が降ります。ラックの中では電源棚が直流 約50 V に変え、背面の太い銅の板（バスバー）で各トレイへ配ります。</p>
+  <p>停電に備える UPS は、部屋の外の電気室にあります。</p>
+  <ul class="cards">
+   <li><span class="v">60 A × 8</span><span class="k">ラック1本の回路</span></li>
+   <li><span class="v">1,400 A</span><span class="k">ラックの中のバスバー</span></li>
+  </ul>
+ </section>
+
+ <section id="s5">
+  <p class="num">5 ／ 液で冷やす</p>
+  <h2>熱の大半は液が運ぶ</h2>
+  <figure><img class="pic" src="img/hot-aisle-800.webp" srcset="img/hot-aisle-800.webp 800w, img/hot-aisle.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="温かい通路の中。ラックの背面に冷却液の管とホースが並ぶ"></figure>
+  <p>GPU の上には金属の板（コールドプレート）が載っていて、中を流れる冷却液が熱を持ち去ります。熱の 87% は液で、残りの 13% は空気で運びます。</p>
+  <p>液の通り道は2つの輪になっていて、2つの液は混ざりません。空気に残った熱は、ラックの背面側の通路を囲って閉じ込め、空調へ戻します。</p>
+  <ul class="cards">
+   <li><span class="v">87%</span><span class="k">液で運ぶ熱</span></li>
+   <li><span class="v">40 → 54 ℃</span><span class="k">ラックと CDU の間</span></li>
+   <li><span class="v">37 → 47 ℃</span><span class="k">CDU と屋外の間</span></li>
+  </ul>
+  <figure>
+   <svg class="loops" viewBox="0 0 340 560" role="img" aria-label="液冷の2つの輪の図。ラックと CDU の間を IT 側の冷却液が行き40度・戻り54度で回り、CDU と建物の外の間を施設の水が入り37度・出47度で回る。熱の87%は液で運ぶ">
+    <g font-size="15" fill="var(--ink)" text-anchor="middle">
+     <text x="170" y="22" font-size="14" fill="var(--sub)">熱の 87% は液で運ぶ</text>
+     <rect x="60" y="36" width="220" height="86" rx="8" fill="var(--panel)" stroke="var(--line)"/>
+     <text x="170" y="72" font-weight="700">ラック</text><text x="170" y="100" font-size="14">GPU の上のコールドプレート</text>
+     <rect x="60" y="234" width="220" height="86" rx="8" fill="var(--panel)" stroke="var(--line)"/>
+     <text x="170" y="270" font-weight="700">CDU</text><text x="170" y="298" font-size="14">熱交換器・ポンプ</text>
+     <rect x="60" y="432" width="220" height="86" rx="8" fill="var(--panel)" stroke="var(--line)"/>
+     <text x="170" y="468" font-weight="700">建物の外</text><text x="170" y="496" font-size="14">屋外の冷却器</text>
+     <line x1="100" y1="234" x2="100" y2="134" stroke="var(--cool)" stroke-width="6"/><polygon points="100,124 92,138 108,138" fill="var(--cool)"/>
+     <line x1="240" y1="122" x2="240" y2="222" stroke="var(--warm)" stroke-width="6"/><polygon points="240,232 232,218 248,218" fill="var(--warm)"/>
+     <text x="88" y="183" font-size="14" text-anchor="end">行き</text><text x="88" y="202" font-size="14" text-anchor="end">40℃</text>
+     <text x="252" y="183" font-size="14" text-anchor="start">戻り</text><text x="252" y="202" font-size="14" text-anchor="start">54℃</text>
+     <text x="170" y="174" font-size="13" font-weight="700">IT 側の</text><text x="170" y="193" font-size="13" font-weight="700">冷却液</text>
+     <line x1="100" y1="432" x2="100" y2="332" stroke="var(--fws)" stroke-opacity=".45" stroke-width="6"/><polygon points="100,322 92,336 108,336" fill="var(--fws)" fill-opacity=".45"/>
+     <line x1="240" y1="320" x2="240" y2="420" stroke="var(--fws)" stroke-width="6"/><polygon points="240,430 232,416 248,416" fill="var(--fws)"/>
+     <text x="88" y="381" font-size="14" text-anchor="end">入る</text><text x="88" y="400" font-size="14" text-anchor="end">37℃</text>
+     <text x="252" y="381" font-size="14" text-anchor="start">出る</text><text x="252" y="400" font-size="14" text-anchor="start">47℃</text>
+     <text x="170" y="372" font-size="13" font-weight="700">施設の水</text>
+     <text x="170" y="548" font-size="13" fill="var(--sub)">残り 13% は空気で → 温かい通路 → 空調</text>
+    </g>
+   </svg>
+   <figcaption>2つの輪。CDU の中の熱交換器で、液どうしを混ぜずに熱だけを渡します。</figcaption>
+  </figure>
+ </section>
+
+ <section id="s6">
+  <p class="num">6 ／ 部屋の外</p>
+  <h2>窓の向こうに電気室と冷却器</h2>
+  <figure><img class="pic" src="img/window-800.webp" srcset="img/window-800.webp 800w, img/window.webp 1600w" sizes="(max-width:760px) 100vw, 720px" width="1600" height="900" loading="lazy" alt="列の端の窓から外を見た絵。向こうに電気室の盤が並ぶ"></figure>
+  <p>窓の向こうは電気室です。さらに奥の屋外に、施設の水を冷やす冷却器があります。建物全体では、この部屋が何十と並びます。</p>
+  <ul class="cards">
+   <li><span class="v">47 → 37 ℃</span><span class="k">屋外で冷やす水</span></li>
+   <li><span class="v">2,000 A 級</span><span class="k">天井のバスウェイ</span></li>
+  </ul>
+ </section>
+
+ <a class="go" href="../room/index.html">部屋を歩いてみる</a>
+
+ <footer>
+  <p>非公式の教材。NVIDIA GB200 NVL72 などを模した形で、NVIDIA・GB200・NVLink・Quantum は NVIDIA Corporation の商標。数値は下の出典による。</p>
+  <h2>出典</h2>
+  <ul>
+   <li>NVIDIA DGX SuperPOD GB200 リファレンス設計（1組の構成・電力）<br><a href="https://docs.nvidia.com/dgx-superpod/reference-architecture-scalable-infrastructure-gb200/latest/dgx-superpod-architecture.html">docs.nvidia.com/dgx-superpod/…/dgx-superpod-architecture.html</a></li>
+   <li>同 PDF（1列のラックの並び）<br><a href="https://docs.nvidia.com/dgx-superpod/reference-architecture-scalable-infrastructure-gb200/latest/_downloads/238ab33ee345a7241fc2f15eedc2ff6c/RA11338001-DSPGB200-ReferenceArch.pdf">docs.nvidia.com/dgx-superpod/…/RA11338001-DSPGB200-ReferenceArch.pdf</a></li>
+   <li>NVIDIA DGX SuperPOD GB300 リファレンス設計（網の分け方・NVLink の速さ）<br><a href="https://docs.nvidia.com/pdf/dgx-spod-gb300-ra.pdf">docs.nvidia.com/pdf/dgx-spod-gb300-ra.pdf</a></li>
+   <li>NVIDIA DGX GB200 ユーザーガイド（トレイ・電源棚・消費電力）<br><a href="https://docs.nvidia.com/dgx/dgxgb200-user-guide/hardware.html">docs.nvidia.com/dgx/dgxgb200-user-guide/hardware.html</a></li>
+   <li>NVIDIA Technical Blog: GB200 NVL72 の設計を OCP へ寄稿（銅ケーブル・バスバー）<br><a href="https://developer.nvidia.com/blog/nvidia-contributes-nvidia-gb200-nvl72-designs-to-open-compute-project/">developer.nvidia.com/blog/nvidia-contributes-nvidia-gb200-nvl72-designs-to-open-compute-project/</a></li>
+   <li>Vertiv Open Rack for NVIDIA MGX データシート（ラックの寸法）<br><a href="https://www.vertiv.com/4a5d30/globalassets/shared/vertiv-mgxrack_data-sheet_emea_english_sl-80496_rev0426.pdf">vertiv.com/…/vertiv-mgxrack_data-sheet…pdf</a></li>
+   <li>Schneider Electric RD109（GB200 NVL72 向けの設計例。液の温度・液と空気の割合・回路）<br><a href="https://download.se.com/files?p_Doc_Ref=RD109DSR0_EN&amp;p_enDocType=Reference+design&amp;p_File_Name=RD109DSR13-GB200.pdf">download.se.com/files?p_Doc_Ref=RD109DSR0_EN…</a></li>
+   <li>NVIDIA Blog: Blackwell の液冷と水の効率（2つの輪）<br><a href="https://blogs.nvidia.com/blog/blackwell-platform-water-efficiency-liquid-cooling-data-centers-ai-factories/">blogs.nvidia.com/blog/blackwell-platform-water-efficiency-liquid-cooling-data-centers-ai-factories/</a></li>
+   <li>Vertiv: 列のマニホールド（CDU とラックの間の液）<br><a href="https://www.vertiv.com/en-anz/insights/articles/educational-articles/row-based-manifolds-the-backbone-of-liquid-cooling-in-modern-data-centers/">vertiv.com/…/row-based-manifolds…</a></li>
+   <li>Vertiv: 天井のバスウェイ（2,000 A 級）<br><a href="https://www.vertiv.com/en-us/about/news-and-insights/corporate-news/2026/vertiv-announces-scalable-high-capacity-double-stack-busway-system-that-preserves-white-space-for-growing-ai-data-center-demands/">vertiv.com/…/double-stack-busway-system…</a></li>
+  </ul>
+ </footer>
+</main>
+
+<script>
+(() => {
+  const walk = document.getElementById('walk');
+  const N = +walk.dataset.frames;
+  const poster = walk.querySelector('img');
+  const caps = [...walk.querySelectorAll('.cap')];
+  const pad = i => String(i).padStart(3, '0');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    walk.classList.add('still');
+    poster.src = poster.dataset.hi;
+    return;
+  }
+  const canvas = walk.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  const lo = new Array(N), hi = new Array(N);
+  let cur = -1, want = 0, queued = false;
+
+  const load = (src) => new Promise((ok) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.onload = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(() => ok(im));
+    im.onerror = () => ok(null);
+    im.src = src;
+  });
+  // 先に低解像度を全部、続けて高解像度を粗い順（10 コマおき → 5 → 残り）に読む
+  async function pool(list, fn, n) {
+    let k = 0;
+    const run = async () => { while (k < list.length) { const i = list[k++]; await fn(i); } };
+    await Promise.all(Array.from({ length: n }, run));
+  }
+  const coarse = [];
+  for (const step of [10, 5, 1]) for (let i = 0; i < N; i += step) if (!coarse.includes(i)) coarse.push(i);
+  const saveData = navigator.connection && navigator.connection.saveData;
+  // 高解像度（約 13 MB）は、読者がスクロールを始めてから読む。開いただけでは低解像度（約 2 MB）だけ
+  let hiStarted = false;
+  const startHi = () => {
+    if (hiStarted || saveData) return;
+    hiStarted = true;
+    pool(coarse, async (i) => { hi[i] = await load(`walk/f${pad(i)}.webp`); if (i === want) draw(true); }, 4);
+  };
+  const loDone = pool([...Array(N).keys()], async (i) => { lo[i] = await load(`walk/lo/f${pad(i)}.webp`); if (i === want) draw(true); }, 6);
+  addEventListener('scroll', () => { loDone.then(startHi); }, { passive: true, once: true });
+
+  function size() {
+    const r = canvas.getBoundingClientRect();
+    const d = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.round(r.width * d); canvas.height = Math.round(r.height * d);
+    draw(true);
+  }
+  function draw(force) {
+    if (!force && want === cur) return;
+    const im = hi[want] || lo[want];
+    if (!im) return;
+    const cw = canvas.width, ch = canvas.height;
+    const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+    const w = im.naturalWidth * s, h = im.naturalHeight * s;
+    ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+    cur = hi[want] ? want : -1;
+  }
+  function onScroll() {
+    queued = false;
+    const r = walk.getBoundingClientRect();
+    const span = walk.offsetHeight - innerHeight;
+    const p = Math.min(1, Math.max(0, -r.top / Math.max(1, span)));
+    want = Math.round(p * (N - 1));
+    draw(false);
+    for (const c of caps) c.classList.toggle('on', p >= +c.dataset.from && p < +c.dataset.to);
+  }
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  addEventListener('resize', size);
+  size(); onScroll();
+})();
+</script>
+</body>
+</html>
