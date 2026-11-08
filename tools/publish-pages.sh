@@ -4,17 +4,17 @@
 #   tools/publish-pages.sh --no-build # dist にあるものをコピーするだけ
 set -e
 cd "$(dirname "$0")/.."
-NAMES=(switch nvl72)
+NAMES=(switch nvl72 qx800 cdu hgx trn2 tpu)
 if [[ "$1" != "--no-build" ]]; then
   for n in $NAMES; do
-    [[ -d "$n-live" ]] && tools/td.sh build "./$n-live"
+    if [[ -d "$n-live" ]]; then tools/td.sh build "./$n-live"; fi
   done
 fi
 mkdir -p docs
 touch docs/.nojekyll
 for n in $NAMES; do
   f="teardown-out/dist/$n-live.html"
-  [[ -f "$f" ]] && cp "$f" "docs/$n-live.html"
+  if [[ -f "$f" ]]; then cp "$f" "docs/$n-live.html"; fi
 done
 # 入口はハブの代わりに site/index.html（機器が増えたらここに足す）
 cp site/index.html docs/index.html

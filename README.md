@@ -11,6 +11,11 @@ AI データセンターの1部屋を歩いて回るツアーと、データセ�
 | 読み物（同じ部屋） | スクロールすると通路を進む映像（Blender で 150 コマ）と、全景・GPU ラック・ネットワーク・電気・液冷・部屋の外の6節。スマホ向け | [room-read/](https://shuyaofficial.github.io/datacenter-teardown/room-read/) |
 | スイッチ（Catalyst 9300-48P を模した 1U） | フレームは ASIC の中で 256 B の切れ端に分かれ、本体はバッファ（PBC）に置かれたまま 64 B の札だけが検索とキューを回る。CPU に上がるのは自分宛てと制御だけ（ハード 190.48 Mpps に対して CPU は約 19,000 pps）。2本の 1G が1本に集まると出口のキューは 1.2288 ms で満杯になる。会社のフロアで PC や電話をつなぐ種類で、AI の GPU どうしをつなぐ所には使わない | [switch-live.html](https://shuyaofficial.github.io/datacenter-teardown/switch-live.html) |
 | GPU ラック（GB200 NVL72 を模した 72 GPU） | GPU 1個の 18 本のリンクは 18 個のスイッチチップに1本ずつ行くので、どの GPU の組もスイッチ1段で届く（ポートは 1,296 = 1,296）。ラックの外（ConnectX-7 400 Gb/s）は中（NVLink 1.8 TB/s）の 18 分の1。all-reduce をスイッチの中で足すと、GPU 1個が送る量は 1.972 GB から 1 GB になる | [nvl72-live.html](https://shuyaofficial.github.io/datacenter-teardown/nvl72-live.html) |
+| AI 向けスイッチ（Quantum-X800 Q3400-RA を模した 144 ポート） | 経路は MAC を覚えず Subnet Manager（UFM）から配られる。混んでも捨てず、受け手が先に渡すクレジットの分だけ送る。144 ポートを下り 72・上り 72 に分け、1組（576 GPU）をリーフ 8 台でつなぐ | [qx800-live.html](https://shuyaofficial.github.io/datacenter-teardown/qx800-live.html) |
+| 液冷の CDU（Vertiv CoolChip CDU 600 を模した 600 kW） | 冷却液 40 → 53.9 ℃ と建物の水 37.2 → 47.2 ℃ を混ぜずに熱だけ渡す。ラック1本 115 kW に毎分約 123 L。ポンプ2台・漏液検知・止まったときの温度上昇 | [cdu-live.html](https://shuyaofficial.github.io/datacenter-teardown/cdu-live.html) |
+| GPU サーバー（DGX B200 を模した 8 GPU） | NVLink の領域は 8 GPU まで。9 個目へは ConnectX-7（18 分の1）。72 個の集計は 6.389 ms で NVL72 の 2.191 ms と比べる。14.3 kW を風で運ぶと約 16 K 温まる | [hgx-live.html](https://shuyaofficial.github.io/datacenter-teardown/hgx-live.html) |
+| AI チップサーバー（AWS Trn2 UltraServer を模した 64 チップ） | スイッチを置かず 4 × 4 の網の目、4台で 4 × 4 × 4。最大 6 段の中継。台の中のリンクは台の間の4倍太く、集計は中→間→中の順。形は未公表なので仮定 | [trn2-live.html](https://shuyaofficial.github.io/datacenter-teardown/trn2-live.html) |
+| TPU ポッド（Google Ironwood を模したラック 64 チップ） | 隣とだけ6本でつなぐ 3D トーラス（線の端 384 = 64 × 6）。光の回線スイッチ（OCS）でつなぎ替えて最大 9,216 チップ。端から端まで最大 16 段 | [tpu-live.html](https://shuyaofficial.github.io/datacenter-teardown/tpu-live.html) |
 
 何も触らないと自動でツアーが流れます。どこかをクリックすると操作できるようになり、25秒触らないとツアーに戻ります。
 
@@ -61,11 +66,12 @@ tools/publish-pages.sh                   # docs/room と docs/room-read にそ�
 スイッチは Cisco の白書・データシート・TAC の文書から、GPU ラックは NVIDIA の DGX GB200 の取扱説明書・リファレンスアーキテクチャ・製品ページから取りました。
 出典の無いところ（バッファ1単位のバイト数など）は「仮定」と書いています。
 画面の計器とパケットの動きは同じ式から出しているので、表示と動きが食い違いません。
-出典と手計算の検算は [switch/refs.md](switch/refs.md) と [nvl72/refs.md](nvl72/refs.md) にあり、各フォルダの `kin.test.mjs` がその値を確かめます。
+出典と手計算の検算は各フォルダの refs.md（[switch](switch/refs.md)・[nvl72](nvl72/refs.md)・[qx800](qx800/refs.md)・[cdu](cdu/refs.md)・[hgx](hgx/refs.md)・[trn2](trn2/refs.md)・[tpu](tpu/refs.md)）にあり、各フォルダの `kin.test.mjs` がその値を確かめます。
 
 ```bash
 node switch/kin.test.mjs
 node nvl72/kin.test.mjs
+for d in qx800 cdu hgx trn2 tpu; do node $d/kin.test.mjs; done
 ```
 
 画面の動きは説明のために引き伸ばしています。実時間として出しているのは出典の値から計算したものだけです（直列化時間、キューが満杯になるまでの時間、all-reduce の帯域だけの所要時間など）。
@@ -85,6 +91,7 @@ tools/publish-pages.sh                   # ビルドして docs/ にそろえる
 | フォルダ | 中身 |
 |---|---|
 | `nvl72-shared/`・`nvl72-live/`・`nvl72-film/`・`nvl72/` | GPU ラックの同じ構成 |
+| `qx800-*`・`cdu-*`・`hgx-*`・`trn2-*`・`tpu-*` と `qx800/` ほか | 3〜7台目（AI 向けスイッチ・CDU・GPU サーバー・Trainium2・TPU）の同じ構成 |
 | `room/` | 部屋ツアーの数値の正本（`refs.md`）・依頼書・調べた資料 |
 | `room-blender/` | 部屋を作る Blender のスクリプト（形・質感・焼き込み・360° 写真・映像） |
 | `room-web/` | 部屋ツアーのブラウザ側（`app/`）と確認の道具 |
@@ -99,7 +106,7 @@ tools/publish-pages.sh                   # ビルドして docs/ にそろえる
 
 ## 注意
 
-非公式の教材です。Cisco Systems・NVIDIA とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField・Quantum は NVIDIA Corporation の商標です。
+非公式の教材です。Cisco Systems・NVIDIA・Vertiv・Amazon・Google とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField・Quantum・DGX・HGX は NVIDIA Corporation の、Vertiv・CoolChip は Vertiv の、AWS・Amazon・Trainium は Amazon.com, Inc. またはその関連会社の、Google・TPU・Ironwood は Google LLC の商標です。
 形は寸法を合わせた簡略形状で、実機の基板配置とは違います。各社のロゴ・写真・資料の図は使っていません。
 
 ## ライセンス

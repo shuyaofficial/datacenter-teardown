@@ -1,0 +1,23 @@
+{
+ "duration": 88,
+ "beats": {
+  "view_ports": 5,
+  "chapter2": 10,
+  "chapter3": 22,
+  "scene_hx": 29,
+  "chapter4": 36,
+  "dT_7": 39,
+  "dT_13.9": 41.5,
+  "scene_glycol": 43.5,
+  "fluid_water": 44.8,
+  "fluid_pg25": 46.3,
+  "scene_racks": 47.6,
+  "chapter5": 52,
+  "chapter6": 58,
+  "scene_leak": 63.5,
+  "scene_fwsloss": 69,
+  "chapter7": 76,
+  "view_bms": 80,
+  "chapter1": 84
+ }
+}

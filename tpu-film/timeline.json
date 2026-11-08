@@ -1,0 +1,18 @@
+{
+ "duration": 88,
+ "beats": {
+  "view_cube": 5,
+  "chapter2": 10,
+  "chapter3": 22,
+  "scene_hop": 26.2,
+  "scene_wrap": 32,
+  "chapter4": 38,
+  "scene_swap": 43.4,
+  "scene_pod": 48,
+  "chapter5": 54,
+  "chapter6": 66,
+  "chapter7": 74,
+  "scene_cool": 79,
+  "chapter1": 84
+ }
+}

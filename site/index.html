@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>datacenter-teardown</title>
+<link rel="icon" href="data:,">
 <meta name="description" content="データセンターの機器を、ブラウザで分解しながら中の仕組みを見る3Dシミュレータ">
 <style>
 :root{--bg:#eef1f3;--panel:#fafbfc;--ink:#1f2427;--sub:#4f5a60;--mute:#7d878d;--line:#dde3e6;--accent:#0f9fa8}
@@ -61,8 +62,38 @@ footer a{color:var(--sub)}
   <p class="go">開く →</p>
 </a>
 
+<a class="card" href="qx800-live.html">
+  <h2><i></i>AI 向けスイッチ（Quantum-X800 Q3400-RA を模した 144 ポート）</h2>
+  <p>ラックとラックをつなぐ InfiniBand のスイッチ。Catalyst と比べると3つ違う。経路は MAC を覚えず Subnet Manager から配られる。混んでも捨てずに、受け手が先に渡すクレジットの分だけ送る。144 ポートの半分を上へ向けるので、GPU 576 個をリーフ 8 台で詰まらせずにつなげる。</p>
+  <p class="go">開く →</p>
+</a>
+
+<a class="card" href="cdu-live.html">
+  <h2><i></i>液冷の CDU（Vertiv CoolChip CDU 600 を模した 600 kW）</h2>
+  <p>ラック側の冷却液（40 → 53.9 ℃）と建物の水（37.2 → 47.2 ℃）を混ぜずに、熱だけを板の熱交換器で渡す。運べる熱は流量 × 温度差で決まり、ラック1本 115 kW には毎分約 123 L。ポンプが止まったら、漏れたらどうなるかも見せる。</p>
+  <p class="go">開く →</p>
+</a>
+
+<a class="card" href="hgx-live.html">
+  <h2><i></i>GPU サーバー（DGX B200 を模した 8 GPU）</h2>
+  <p>NVL72 の1つ前の形。NVLink で1つになるのは箱の中の 8 個まで。9 個目からは 18 分の1の速さのネットワークを通るので、72 個の集計は 6.389 ms（NVL72 は 2.191 ms）。14.3 kW を風で運ぶと空気は約 16 K 温まる。</p>
+  <p class="go">開く →</p>
+</a>
+
+<a class="card" href="trn2-live.html">
+  <h2><i></i>AI チップサーバー（AWS Trn2 UltraServer を模した 64 チップ）</h2>
+  <p>Claude の学習にも使われる Trainium2。スイッチを置かず、1台の 16 チップを 4 × 4 の網の目でじかにつなぎ、4台重ねて 4 × 4 × 4 にする。遠いチップへは最大 6 段の中継（NVL72 はどの組もスイッチ1段）。形は未公表なので仮定で描いている。</p>
+  <p class="go">開く →</p>
+</a>
+
+<a class="card" href="tpu-live.html">
+  <h2><i></i>TPU ポッド（Google Ironwood を模したラック 64 チップ）</h2>
+  <p>チップどうしを隣とだけ6本の線でつなぐ 3D トーラス。ラック1台が 4 × 4 × 4 の立方体で、面から出る光の線を鏡のスイッチ（OCS）でつなぎ替えて、最大 9,216 チップに広げる。広い代わりに、端から端まで最大 16 段かかる。</p>
+  <p class="go">開く →</p>
+</a>
+
 <footer>
-  非公式の教材です。Cisco Systems・NVIDIA とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField・Quantum は NVIDIA Corporation の商標です。形は寸法を合わせた簡略形状で、部屋の絵は Blender で描いたもの（実在の施設の写真ではありません）です。<br>
+  非公式の教材です。Cisco Systems・NVIDIA・Vertiv・Amazon・Google とは関係がありません。Cisco・Catalyst は Cisco Systems, Inc. の、NVIDIA・GB200・NVLink・Grace・Blackwell・ConnectX・BlueField・Quantum・DGX・HGX は NVIDIA Corporation の、Vertiv・CoolChip は Vertiv の、AWS・Amazon・Trainium は Amazon.com, Inc. またはその関連会社の、Google・TPU・Ironwood は Google LLC の商標です。形は寸法を合わせた簡略形状で、部屋の絵は Blender で描いたもの（実在の施設の写真ではありません）です。<br>
   ソースと出典: <a href="https://github.com/shuyaofficial/datacenter-teardown">github.com/shuyaofficial/datacenter-teardown</a>
   ／ 同じ作りのビル設備版: <a href="https://shuyaofficial.github.io/building-teardown/">building-teardown</a><br>
   使っている OSS のライセンス: <a href="https://github.com/shuyaofficial/datacenter-teardown/blob/main/THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>

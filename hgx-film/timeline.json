@@ -1,0 +1,20 @@
+{
+ "duration": 88,
+ "beats": {
+  "view_bezel": 3.5,
+  "view_back": 6.5,
+  "chapter2": 10,
+  "chapter3": 22,
+  "scene_hop": 28,
+  "chapter4": 34,
+  "scene_rails": 41,
+  "chapter5": 48,
+  "scene_vs72": 59,
+  "chapter6": 64,
+  "scene_rack": 69,
+  "limit_60": 72,
+  "chapter7": 74,
+  "dT_10": 79.5,
+  "chapter1": 84
+ }
+}
