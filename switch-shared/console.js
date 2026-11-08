@@ -33,7 +33,7 @@ const CSS = `
 .tg.port span{font:500 11.5px ${SANS};color:${C.sub};margin-left:5px}
 .tg.chip{padding:2px 7px;border-radius:4px;background:#fff;border:1.5px solid ${C.accent};color:${C.accent};font:700 12px ${SANS}}
 .tg.body{padding:2px 7px;border-radius:4px;background:${C.ink};color:#fff;font:700 12px ${SANS}}
-.tg.card{padding:8px 11px;border-radius:6px;background:${C.panel};border:1px solid ${C.line};box-shadow:0 2px 10px rgba(110,90,60,.1);font:500 12px/1.65 ${MONO};color:${C.ink}}
+.tg.card{padding:8px 11px;border-radius:6px;background:${C.panel};border:1px solid ${C.line};box-shadow:0 2px 10px rgba(40,60,70,.1);font:500 12px/1.65 ${MONO};color:${C.ink}}
 .tg.card b{display:block;font:700 13px ${SANS};margin-bottom:2px}
 .tg.card i{display:inline-block;width:76px;font:500 11.5px ${SANS};font-style:normal;color:${C.sub}}
 .tg.card em{font-style:normal;font-weight:700;color:${C.accent}}
@@ -117,7 +117,7 @@ export function createConsole(app) {
   // Q1
   sm(1278, 618, 'Q1 の溜まり量');
   const q1Main = add(`<div style="position:absolute;left:1380px;top:615px;width:176px;text-align:right;font:700 15px Inter,${SANS};white-space:nowrap"></div>`);
-  add(`<div style="position:absolute;left:1278px;top:638px;width:278px;height:9px;border-radius:2px;background:#ebe2d4"></div>`);
+  add(`<div style="position:absolute;left:1278px;top:638px;width:278px;height:9px;border-radius:2px;background:#e1e7ea"></div>`);
   const q1Bar = add(`<div style="position:absolute;left:1278px;top:638px;height:9px;border-radius:2px;background:${C.ink}"></div>`);
   const q1Sub = add(`<div class="mo" style="position:absolute;left:1278px;top:650px;width:280px;font-size:11px;color:${C.sub};white-space:nowrap"></div>`);
   const CH = {x: 1280, y: 678, w: 252, h: 44};
@@ -143,9 +143,9 @@ export function createConsole(app) {
     poe.innerHTML =
       `<div class="ph" style="left:14px;top:12px"><i></i>PoE の予算（${SPEC.psuW} W 電源 1 台）</div>` +
       `<div style="position:absolute;left:16px;top:44px;font:700 22px ${SANS}">${B}<span style="font-size:13px;font-weight:500"> W</span><span style="font:500 13px ${SANS};color:${C.sub};margin-left:10px">${SPEC.poeDeviceW} W の機器は <b style="color:${C.accent};font-size:17px">${n}</b> 台まで（${B} ÷ ${SPEC.poeDeviceW} = ${(B / SPEC.poeDeviceW).toFixed(2)}）</span></div>` +
-      `<div style="position:absolute;left:16px;top:80px;width:${W0}px;height:16px;background:#ebe2d4;border-radius:2px">${seg}</div>` +
+      `<div style="position:absolute;left:16px;top:80px;width:${W0}px;height:16px;background:#e1e7ea;border-radius:2px">${seg}</div>` +
       `<div style="position:absolute;left:16px;top:100px;font:500 11px ${SANS};color:${C.mute}">1 マス = ${SPEC.poeDeviceW} W・残り ${B - n * SPEC.poeDeviceW} W</div>` +
-      `<div style="position:absolute;left:16px;top:124px;width:${W0}px;height:8px;background:#ebe2d4;border-radius:2px"><div style="width:${((B / full) * W0).toFixed(1)}px;height:8px;background:${C.ink};border-radius:2px"></div></div>` +
+      `<div style="position:absolute;left:16px;top:124px;width:${W0}px;height:8px;background:#e1e7ea;border-radius:2px"><div style="width:${((B / full) * W0).toFixed(1)}px;height:8px;background:${C.ink};border-radius:2px"></div></div>` +
       `<div style="position:absolute;left:16px;top:138px;font:500 12px ${SANS};color:${C.sub}">48 ポート全部に ${SPEC.poeDeviceW} W なら <b style="color:${C.ink}">${full.toLocaleString('en-US')} W</b> 要る（予算はその ${Math.round((B / full) * 100)}%）</div>`;
   }
 

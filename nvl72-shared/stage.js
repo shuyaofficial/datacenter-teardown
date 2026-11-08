@@ -13,7 +13,7 @@ import {buildOverlay} from './overlay.js';
 import {buildRack} from './rack.js';
 
 const V3 = THREE.Vector3;
-export const COL = {bg: C.bg, ground: '#e8dfd0', grid: '#d9cdb9', shadow: '#6e5a40'};
+export const COL = {bg: C.bg, ground: '#e3e8eb', grid: '#cfd7dc', shadow: '#3f4f58'};
 
 const GROUND_VERT = /* glsl */ `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const GROUND_FRAG = /* glsl */ `uniform vec3 uG; uniform vec3 uM; uniform vec3 uBg; uniform vec3 uC; uniform float uR; varying vec3 vW;
@@ -68,7 +68,7 @@ export function createStage({canvas}) {
 
   {
     const env = new THREE.Scene();
-    env.background = new THREE.Color('#e9e1d3');
+    env.background = new THREE.Color('#e6eaed');
     const box = (w, h, pos, k) => {
       const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({color: new THREE.Color(1, 0.985, 0.96).multiplyScalar(k), side: THREE.DoubleSide}));
       m.position.copy(pos);
@@ -79,7 +79,7 @@ export function createStage({canvas}) {
     box(6, 28, new V3(24, 8, 12), 3.0);
     box(6, 28, new V3(-24, 8, -8), 1.8);
     box(36, 4, new V3(0, 4, 28), 1.5);
-    const g = new THREE.Mesh(new THREE.CircleGeometry(40, 32), new THREE.MeshBasicMaterial({color: '#d6c8b0', side: THREE.DoubleSide}));
+    const g = new THREE.Mesh(new THREE.CircleGeometry(40, 32), new THREE.MeshBasicMaterial({color: '#cdd5da', side: THREE.DoubleSide}));
     g.rotation.x = -Math.PI / 2;
     g.position.y = -2;
     env.add(g);
@@ -90,7 +90,7 @@ export function createStage({canvas}) {
   }
   // the sun from the front-right and high: the rack's shadow falls behind it, the pulled tray's lifted layers shade the tray
   const SUN_DIR = new V3(0.45, 0.82, 0.55).normalize();
-  const sun = new THREE.DirectionalLight('#fff6ea', 2.1);
+  const sun = new THREE.DirectionalLight('#fbfcff', 2.1);
   sun.castShadow = true;
   let EXT = 2;
   const setExt = (e) => {
@@ -105,7 +105,7 @@ export function createStage({canvas}) {
   sun.shadow.bias = -0.0003;
   sun.shadow.normalBias = 0.002;
   scene.add(sun, sun.target);
-  scene.add(new THREE.HemisphereLight('#fffaf2', '#d6c4a4', 0.75));
+  scene.add(new THREE.HemisphereLight('#f8fbfd', '#b9c4ca', 0.75));
 
   const groundMat = new THREE.ShaderMaterial({
     vertexShader: GROUND_VERT,

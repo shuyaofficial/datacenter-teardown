@@ -46,7 +46,7 @@ export const SUB_NOTE = {front: '前から: トレイの並びと前面のポー
 const CSS = `
 .bt[data-n]::before{content:attr(data-n);position:absolute;left:11px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;font:700 12px ${SANS};display:flex;align-items:center;justify-content:center;letter-spacing:0}
 .bt[data-n]{padding-left:22px}
-.call{padding:4px 9px 5px 6px;border-radius:5px;background:rgba(252,250,246,.94);border:1px solid ${C.line}}
+.call{padding:4px 9px 5px 6px;border-radius:5px;background:rgba(250,251,252,.94);border:1px solid ${C.line}}
 .call b{text-shadow:none}
 .call span{text-shadow:none}
 .call b i.nb{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${C.accent};color:#fff;font:700 11px ${SANS};font-style:normal;flex:none}
@@ -58,7 +58,7 @@ const CSS = `
 .tg.lbl span{display:block;font:500 11.5px ${SANS};color:${C.sub}}
 .tg.lbl.on{border-color:${C.accent}}
 .tg.lbl.on b{color:${C.accent}}
-.tg.note{font:600 12px ${SANS};color:${C.sub};letter-spacing:.04em;padding:2px 8px;border-radius:4px;background:rgba(252,250,246,.9)}
+.tg.note{font:600 12px ${SANS};color:${C.sub};letter-spacing:.04em;padding:2px 8px;border-radius:4px;background:rgba(250,251,252,.9)}
 .gr{position:absolute;left:1278px;width:280px;white-space:nowrap;display:flex;align-items:baseline;justify-content:space-between;font:500 12.5px ${SANS};color:${C.sub}}
 .gr b{font:700 17px Inter,${SANS};color:${C.ink}}
 .gr b small{font:500 12px ${SANS};color:${C.sub};margin-left:3px}
@@ -67,11 +67,11 @@ const CSS = `
 .gl{position:absolute;left:1278px;width:278px;height:1px;background:${C.line}}
 .big{position:absolute;left:1278px;width:280px;white-space:nowrap;font:700 30px Inter,${SANS};color:${C.ink};letter-spacing:-.01em}
 .big small{font:500 14px ${SANS};color:${C.sub};margin-left:4px;letter-spacing:0}
-.trk{position:absolute;height:10px;border-radius:2px;background:#ebe2d4}
+.trk{position:absolute;height:10px;border-radius:2px;background:#e1e7ea}
 .fil{position:absolute;height:10px;border-radius:2px}
-.nvcap{position:absolute;left:800px;top:110px;transform:translateX(-50%);max-width:880px;padding:5px 14px;border-radius:5px;background:rgba(252,250,246,.93);border:1px solid ${C.line};font:700 16px ${SANS};color:${C.ink};letter-spacing:.03em;white-space:nowrap}
+.nvcap{position:absolute;left:800px;top:110px;transform:translateX(-50%);max-width:880px;padding:5px 14px;border-radius:5px;background:rgba(250,251,252,.93);border:1px solid ${C.line};font:700 16px ${SANS};color:${C.ink};letter-spacing:.03em;white-space:nowrap}
 .sl{position:absolute;left:44px;width:268px;height:46px}
-.sl .t{position:absolute;left:8px;right:8px;top:30px;height:6px;border-radius:3px;background:#ebe2d4}
+.sl .t{position:absolute;left:8px;right:8px;top:30px;height:6px;border-radius:3px;background:#e1e7ea}
 .sl .k{position:absolute;top:24px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:${C.accent};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .sl .v{position:absolute;left:0;top:0;font:700 13px ${SANS};color:${C.ink}}
 .sl .r{position:absolute;right:0;top:2px;font:500 11px ${SANS};color:${C.mute}}
@@ -92,7 +92,7 @@ export function createConsole(app) {
   const btn = {};
 
   // ------------------------------------------------------------ header: a paper strip so the title never sits on the 3D
-  add(`<div style="position:absolute;left:0;top:0;width:1600px;height:98px;background:rgba(239,233,223,.96);border-bottom:1px solid ${C.line}"></div>`);
+  add(`<div style="position:absolute;left:0;top:0;width:1600px;height:98px;background:rgba(238,241,243,.96);border-bottom:1px solid ${C.line}"></div>`);
   add(`<div style="position:absolute;left:0;top:0;width:150px;height:92px;background:${C.accent}"></div>`);
   add(`<svg style="position:absolute;left:52px;top:12px" width="46" height="68" viewBox="0 0 46 68"><rect x="4" y="2" width="38" height="64" rx="2" fill="none" stroke="#fff" stroke-width="3"/><path d="M10 9h26v4H10zM10 17h26v3H10zM10 23h26v3H10zM10 29h26v3H10zM10 36h26v3H10zM10 42h26v3H10zM10 48h26v3H10zM10 55h26v4H10z" fill="#fff"/></svg>`);
   add(`<div class="sm" style="position:absolute;left:172px;top:16px;letter-spacing:.12em">ネットワーク機器のしくみ　02</div>`);

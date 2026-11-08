@@ -14,7 +14,7 @@ import {along, coolPaths, dashCount, dashes, fanPose, hopPose, IB, nvlStubPath, 
 
 const V3 = THREE.Vector3;
 const BOX = new THREE.BoxGeometry(1, 1, 1);
-const PALE = '#eea98c';
+const PALE = '#8fd0d4';
 const INK = '#2f2c28';
 
 export function buildOverlay(rack) {
@@ -76,16 +76,16 @@ export function buildOverlay(rack) {
   const ring = new THREE.Group();
   ring.position.set(...RING.c);
   root.add(ring);
-  const plateMat = std('#f7f3ec', {roughness: 0.85, transparent: true});
+  const plateMat = std('#f4f6f7', {roughness: 0.85, transparent: true});
   const plate = new THREE.Mesh(new THREE.CylinderGeometry(RING.r + 120, RING.r + 120, 12, 72), plateMat);
   plate.rotation.x = Math.PI / 2;
   plate.position.z = -14;
   plate.castShadow = true;
   ring.add(plate);
-  const trackMat = std('#cfc5b5', {transparent: true});
+  const trackMat = std('#c7cfd4', {transparent: true});
   const track = new THREE.Mesh(new THREE.TorusGeometry(RING.track, 4, 6, 144), trackMat);
   ring.add(track);
-  const gpuMat = std('#8f887c', {transparent: true});
+  const gpuMat = std('#848c92', {transparent: true});
   const gpus = new THREE.InstancedMesh(BOX, gpuMat, SPEC.allreduce.gpus);
   for (let i = 0; i < SPEC.allreduce.gpus; i++) {
     const [x, y] = ringXY(i);
@@ -93,12 +93,12 @@ export function buildOverlay(rack) {
     gpus.setMatrixAt(i, m4);
   }
   ring.add(gpus);
-  const hubMat = std('#a39a8c', {transparent: true});
+  const hubMat = std('#959ea4', {transparent: true});
   const hub = new THREE.Mesh(BOX, hubMat);
   hub.scale.set(RING.hubS, RING.hubS * 0.62, 30);
   ring.add(hub);
   const hubBase = hubMat.color.clone();
-  const spokeMat = std('#d8cfc1', {transparent: true});
+  const spokeMat = std('#cfd6da', {transparent: true});
   const spokes = new THREE.InstancedMesh(BOX, spokeMat, SPEC.allreduce.gpus);
   for (let i = 0; i < SPEC.allreduce.gpus; i++) {
     const [x, y] = ringXY(i, (RING.r + RING.hubS * 0.4) / 2);
@@ -291,7 +291,7 @@ export function buildOverlay(rack) {
       if (top) out.push({kind: 'note', x: top[0], y: top[1], h: 'c', v: 'b', o: 1, html: 'GPU 72 個を輪に並べた図（実際の並びではない）'});
       // under the plate: what the centre box is (SHARP) and what the two bead colours mean
       const lb = scrRing(project, 0, -RING.r - 135);
-      const key = sc === 'ring' ? '<b>黒: 足している途中　<i style="font-style:normal;color:#e3562a">色: 足し終わった分</i></b><span>隣へ 1/72 ずつ、142 回</span>' : '<b>中央: NVSwitch × 18（1 つにまとめて描く）</b><span>黒: 送る 1 GB　色: 中で足して返す合計</span>';
+      const key = sc === 'ring' ? '<b>黒: 足している途中　<i style="font-style:normal;color:#0f9fa8">色: 足し終わった分</i></b><span>隣へ 1/72 ずつ、142 回</span>' : '<b>中央: NVSwitch × 18（1 つにまとめて描く）</b><span>黒: 送る 1 GB　色: 中で足して返す合計</span>';
       if (lb) out.push({kind: 'lbl', x: lb[0], y: lb[1], h: 'c', v: 't', o: 1, on: sc === 'sharp', html: key});
     }
     if (look.chapter === 5) {

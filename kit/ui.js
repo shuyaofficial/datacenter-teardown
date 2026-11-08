@@ -2,15 +2,15 @@
 // Latin only, so Japanese falls through to the system's), panels with a numbered header, buttons, the operator's
 // cursor and click ring. Fixed 1600 x 900 layout, as in the teardown examples.
 export const C = {
-  ink: '#262420',
-  sub: '#5f584e',
-  mute: '#8f8577',
-  faint: '#d8cfc1',
-  line: '#e6ddcf',
-  panel: 'rgba(252,250,246,.95)',
-  btn: '#fffdf9',
-  bg: '#efe9df',
-  accent: '#e3562a',
+  ink: '#1f2427',
+  sub: '#4f5a60',
+  mute: '#7d878d',
+  faint: '#cfd6da',
+  line: '#dde3e6',
+  panel: 'rgba(250,251,252,.95)',
+  btn: '#fbfcfd',
+  bg: '#eef1f3',
+  accent: '#0f9fa8',
   ok: '#2f9b67',
 };
 export const JP = `'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif`;
@@ -22,7 +22,7 @@ html,body{background:${C.bg}}
 #app{font-family:${SANS};color:${C.ink};-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
 .ui{position:absolute;inset:0;pointer-events:none}
 .mo{font-family:${MONO}}
-.cp{position:absolute;background:${C.panel};border:1px solid ${C.line};border-radius:6px;box-shadow:0 2px 10px rgba(110,90,60,.08)}
+.cp{position:absolute;background:${C.panel};border:1px solid ${C.line};border-radius:6px;box-shadow:0 2px 10px rgba(40,60,70,.08)}
 .ph{position:absolute;display:flex;align-items:center;gap:8px;font:700 15px ${SANS};letter-spacing:.06em;white-space:nowrap}
 .ph i{display:block;width:3px;height:15px;background:${C.accent}}
 .pn{position:absolute;font:500 11px ${MONO};color:${C.mute};letter-spacing:1px}

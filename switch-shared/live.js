@@ -27,16 +27,16 @@ html,body{overflow:hidden}
 #gl.drag{cursor:grabbing}
 .bt{pointer-events:auto;cursor:pointer}
 .bt:hover{filter:brightness(.96)}
-.tourchip{position:absolute;left:840px;top:40px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;height:28px;padding:0 14px;border:1px solid #e6ddcf;border-radius:5px;background:rgba(252,250,246,.95);color:#262420;font:700 13px 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;letter-spacing:.04em;white-space:nowrap;cursor:pointer;pointer-events:auto}
-.tourchip i{display:block;width:7px;height:7px;border-radius:50%;background:#e3562a}
+.tourchip{position:absolute;left:840px;top:40px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;height:28px;padding:0 14px;border:1px solid #dde3e6;border-radius:5px;background:rgba(250,251,252,.95);color:#1f2427;font:700 13px 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;letter-spacing:.04em;white-space:nowrap;cursor:pointer;pointer-events:auto}
+.tourchip i{display:block;width:7px;height:7px;border-radius:50%;background:#0f9fa8}
 .tourchip.on i{animation:blink 1.2s steps(2) infinite}
 @media (prefers-reduced-motion:reduce){.tourchip.on i{animation:none}}
 @keyframes blink{50%{opacity:.15}}
-.turn{position:fixed;left:0;right:0;bottom:18px;text-align:center;font:600 13px/1.4 'Hiragino Sans','Noto Sans JP',sans-serif;color:#8f8577;display:none}
+.turn{position:fixed;left:0;right:0;bottom:18px;text-align:center;font:600 13px/1.4 'Hiragino Sans','Noto Sans JP',sans-serif;color:#7d878d;display:none}
 @media (orientation:portrait) and (max-width:820px){.turn{display:block}}
-.txt{max-width:900px;margin:0 auto;padding:28px 20px;font:500 15px/1.75 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:#262420}
+.txt{max-width:900px;margin:0 auto;padding:28px 20px;font:500 15px/1.75 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:#1f2427}
 .txt h1{font-size:26px;margin:0 0 4px}.txt h2{font-size:17px;margin:22px 0 4px}.txt code{font:12.5px 'JetBrains Mono',monospace;color:#5f584e}
-.txt ol{padding-left:22px}.txt small{color:#8f8577}
+.txt ol{padding-left:22px}.txt small{color:#7d878d}
 `;
 
 /** the version without WebGL: every chapter's text and command, then the 12 stages */
