@@ -52,7 +52,14 @@ export function createWalk3d({world, data, grid, onStation}) {
     if (!s) return Promise.resolve(false);
     if (photo.state === 'on' && photo.station === id) return Promise.resolve(true);
     const p = grid.path(pos, s.v);
-    if (!p) return Promise.resolve(false);
+    if (!p) {
+      // 温かい通路のように扉の付いた囲いの中は、格子の上では塞がって見えて道が無い。
+      // その地点へ移り、同じ位置の 360° 写真に切り替える（扉を抜けて入った扱い）
+      onArrive?.(false); onArrive = null;
+      path = null; pathTarget = null;
+      view.yaw = s.yaw;
+      return showPhotoNow(id).then(() => true);
+    }
     onArrive?.(false);
     path = p.slice(1); pathTarget = s;
     still = 0;
