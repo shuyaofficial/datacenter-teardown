@@ -1,0 +1,136 @@
+{
+ "name": "read",
+ "engine": "voicevox",
+ "speaker": 3,
+ "speed": 1.15,
+ "pause": 0.6,
+ "credit": "VOICEVOX:ずんだもん　絵は Blender で描いたもの",
+ "bgm": "03_10C_しゃろう_ループ.mp3",
+ "bgm_gain_db": -15,
+ "headline": [
+  "スクロールで",
+  "AI の部屋を歩く"
+ ],
+ "note": "縦 1080x1920・約27秒（SNS 5媒体の共通版）。promo/make_vertical_read.py で並べる。素材は teardown-out/room/v2 の連番・静止画と、読み物ページのスマホ幅の画面（promo/shoot_read.mjs → teardown-out/read-shots）。t は縦版の時間",
+ "segments": [
+  {
+   "id": "A",
+   "kind": "frames",
+   "pattern": "teardown-out/room/v2/walk/f%03d.webp",
+   "first": 0,
+   "last": 149,
+   "dur": 4.4,
+   "y": 200
+  },
+  {
+   "id": "B",
+   "kind": "pan",
+   "still": "teardown-out/room/v2/stills/overview.webp",
+   "x": [
+    0.2,
+    0.6
+   ],
+   "dur": 5.0
+  },
+  {
+   "id": "C",
+   "kind": "pan",
+   "still": "teardown-out/room/v2/stills/hot-aisle.webp",
+   "x": [
+    0.62,
+    0.3
+   ],
+   "dur": 5.2
+  },
+  {
+   "id": "D",
+   "kind": "scroll",
+   "image": "teardown-out/read-shots/read-loops.png",
+   "y": [
+    1620,
+    2350
+   ],
+   "dur": 4.4,
+   "scale": 0.92,
+   "top": 760,
+   "sub_y": 590
+  },
+  {
+   "id": "E",
+   "kind": "phone",
+   "pattern": "teardown-out/read-shots/read-scroll-%03d.png",
+   "first": 0,
+   "last": 107,
+   "dur": 3.6
+  },
+  {
+   "id": "F",
+   "kind": "card",
+   "still": "teardown-out/hub-1600.png",
+   "dur": 4.2
+  }
+ ],
+ "lines": [
+  {
+   "t": 0.15,
+   "beat": "A",
+   "text": "スクロールすると、AIデータセンターの中を進むのだ。",
+   "say": "スクロールすると、エーアイデータセンターの中を進むのだ。",
+   "sub": [
+    "スクロールすると、",
+    "AIデータセンターの",
+    "中を進むのだ"
+   ]
+  },
+  {
+   "t": 4.5,
+   "beat": "B",
+   "text": "ラック8本が1組で、GPUは576個なのだ。",
+   "say": "ラック8本がひと組で、ジーピーユーは、ごひゃくななじゅうろっこなのだ。",
+   "sub": [
+    "ラック8本が1組で、",
+    "GPUは576個なのだ"
+   ]
+  },
+  {
+   "t": 9.5,
+   "beat": "C",
+   "text": "熱の87%は、GPUの上を流れる液が運ぶのだ。",
+   "say": "熱の87パーセントは、ジーピーユーの上を流れる液が運ぶのだ。",
+   "sub": [
+    "熱の87%は、GPUの上を",
+    "流れる液が運ぶのだ"
+   ]
+  },
+  {
+   "t": 14.7,
+   "beat": "D",
+   "text": "冷やす液と施設の水、2つの輪で熱を外へ出すのだ。",
+   "say": "冷やす液と施設の水、2つの輪で熱を外へ出すのだ。",
+   "sub": [
+    "冷やす液と施設の水、",
+    "2つの輪で熱を外へ出すのだ"
+   ]
+  },
+  {
+   "t": 19.1,
+   "beat": "E",
+   "text": "スマホでも、上から順に読めるのだ。",
+   "say": "スマホでも、上から、順に読めるのだ。",
+   "sub": [
+    "スマホでも、",
+    "上から順に読めるのだ"
+   ]
+  },
+  {
+   "t": 22.75,
+   "beat": "F",
+   "text": "AIデータセンターを、3Dで分解して見られるのだ。",
+   "say": "エーアイデータセンターを、スリーディーで分解して見られるのだ。",
+   "sub": [
+    "AIデータセンターを、",
+    "3Dで分解して見られるのだ"
+   ]
+  }
+ ]
+}

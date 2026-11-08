@@ -5,3 +5,9 @@ teardown-out/
 __pycache__/
 # 部屋ツアーの three は skill の node_modules への symlink（公開物は build-site.sh が実体をコピーする）
 room-web/vendor/
+# SNS 投稿用の動画一式（大きいので公開リポジトリに入れない）
+promo/投稿用/
+# BGM の音源と投稿文の下書きは公開リポジトリに入れない（建物版と同じ扱い）
+promo/bgm/
+promo/x-posts-*.md
+promo/card/overview.webp
