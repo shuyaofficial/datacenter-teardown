@@ -4,7 +4,7 @@
 #   tools/publish-pages.sh --no-build # dist にあるものをコピーするだけ
 set -e
 cd "$(dirname "$0")/.."
-NAMES=(switch)
+NAMES=(switch nvl72)
 if [[ "$1" != "--no-build" ]]; then
   for n in $NAMES; do
     [[ -d "$n-live" ]] && tools/td.sh build "./$n-live"
