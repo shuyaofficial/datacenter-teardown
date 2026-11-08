@@ -267,10 +267,10 @@ test('ツアー: 章 1→7 を 60〜90 s で回り、timeline.json は台本と�
   // the cover opens at chapter 2 and closes at 4 (from there the cover is taken away instead)
   assert.deepEqual(explodeEventsOf(), [{t: 8, to: 1}, {t: 26, to: 0}]);
   assert.deepEqual([awayOf(3), awayOf(4), awayOf(6), awayOf(7)], [[0, 0], [1, 1], [1, 1], [1, 0]]);
-  // the chapter budgets of the brief (±2 s): 8, 10, 8, 20, 14, 14, 8
+  // the chapter budgets of the brief (±2 s): 8, 10, 8, 20 (23.2 with the flood), 14, 14, 8
   const ts = SCRIPT.filter((e) => e.chapter !== undefined).map((e) => e.t);
   const lens = ts.slice(1).map((t, i) => t - ts[i]);
-  [8, 10, 8, 20, 14, 14, 8].forEach((want, i) => assert.ok(Math.abs(lens[i] - want) <= 2, `chapter ${i + 1}: ${lens[i]} s`));
+  [8, 10, 8, 23.2, 14, 14, 8].forEach((want, i) => assert.ok(Math.abs(lens[i] - want) <= 2, `chapter ${i + 1}: ${lens[i]} s`));
 });
 
 test('ツアー: 章 4 は l2 を 1 往復、l3 は RWE で書き換えた状態に寄る', () => {
@@ -287,7 +287,21 @@ test('ツアー: 章 4 は l2 を 1 往復、l3 は RWE で書き換えた状態
   assert.ok(zoom + 1.8 <= rweT + 0.2, 'zoomed in time');
   const pk = packetAt('l3', sceneTAt(rweT + 0.5));
   assert.equal(pk.stageId, 'rwe');
-  assert.equal(packetAt('l3', sceneTAt(SCRIPT.find((e) => e.chapter === 5).t - 0.1)).rewrite.ttl, 63);
+  const flood = SCRIPT.find((e) => e.scene === 'flood');
+  assert.equal(packetAt('l3', sceneTAt(flood.t - 0.1)).rewrite.ttl, 63);
+  assert.ok(sceneTAt(flood.t - 0.1) >= sceneDuration('l3') - 1e-9, 'l3 finishes before the flood');
+});
+
+test('ツアー: 章 4 の宛先不明は FIFO の出口から入り、3 ポートへ複製して出るまで流す', () => {
+  const flood = SCRIPT.find((e) => e.scene === 'flood');
+  const c5 = SCRIPT.find((e) => e.chapter === 5).t;
+  assert.equal(stateAtScript(flood.t + 0.1).scene, 'flood');
+  assert.equal(stateAtScript(flood.t + 0.1).zoom, null, 'the RWE zoom is released');
+  near(sceneTAt(flood.t), flood.skip, 1e-9, 'starts skip seconds in');
+  assert.equal(packetAt('flood', sceneTAt(flood.t + 0.1)).stageId, 'fifo-in', 'one step before the lookup that misses');
+  assert.equal(packetAt('flood', sceneTAt(flood.t + 0.7)).stageId, 'ifc');
+  assert.equal(packetAt('flood', sceneTAt(c5 - 0.1)).copies, 3, '3 copies leave');
+  assert.ok(sceneTAt(c5 - 0.1) >= sceneDuration('flood') - SPEC.stageDur, 'reaches the out step');
 });
 
 test('ツアー: 章 5 は arp が IOSd まで上がって戻り、storm の計器が 10,000 / 4,000 / 6,000 に届く', () => {

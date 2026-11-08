@@ -16,6 +16,7 @@ import {
   hbmTotalGB,
   hbmTotalTBs,
   inOutRatio,
+  IN_USE,
   installedKW,
   linkGBs,
   linkOneWayGBs,
@@ -168,6 +169,9 @@ export function createConsole(app) {
     R.forEach(([k, v, u], i) => row(p, 172 + i * 31, k, v, u));
     rule(p, 488);
     note(p, 498, `検算: HBM ${SPEC.computeTrays * 4} × ${SPEC.gpu.hbmGB} GB = ${fmt(hbmTotalGB())} GB、帯域 72 × ${SPEC.gpu.hbmTBs} TB/s = ${hbmTotalTBs()} TB/s、LPDDR5X 36 × ${SPEC.grace.lpddrGB} GB = ${fmt(lpddrTotalGB())} GB、コア 36 × ${SPEC.grace.cores} = ${fmt(coreCount())}。<br>LPDDR5X の帯域は出典の値が合わないので出さない。重さは NVIDIA の値が無いので描かない。`);
+    rule(p, 582);
+    head(p, 588, '実際に使われている所（脚注）');
+    put(p, `<div class="gs" style="top:605px;font-size:10.5px;line-height:1.3">${IN_USE.map((l) => `・${l}`).join('<br>')}</div>`);
   }
   // 2 the tray
   let pullV;
@@ -314,7 +318,7 @@ export function createConsole(app) {
     chartDot._xs = xs;
     chartDot._ys = ys;
   }
-  add(`<div class="sm" style="position:absolute;left:1278px;top:716px;font-size:11px;letter-spacing:.02em">動きは説明用に引き伸ばしています</div>`);
+  add(`<div class="sm" style="position:absolute;left:1278px;top:722px;font-size:11px;letter-spacing:.02em">動きは説明用に引き伸ばしています</div>`);
 
   // ------------------------------------------------------------ 05 the explanation band
   panel(28, 752, 1544, 120, '', '05');

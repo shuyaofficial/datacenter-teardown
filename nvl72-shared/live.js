@@ -6,10 +6,10 @@
 // step to step and the dashes stand still. Without WebGL the page is a text version: the chapters and their commands.
 import {warmComposer} from 'teardown-kit/warm.js';
 import {createConsole, SLIDER, subsOf} from './console.js';
-import {blendCam, camAt, dTAt, lastChange, lastChapter, lookOf, makeConsoleFrame, makeFilmCursor, ss, VIEW_FN, viewKeyOf} from './film.js';
+import {blendCam, camAt, dTAt, holdAt, labelWait, lastChange, lastChapter, lookOf, makeConsoleFrame, makeFilmCursor, ss, VIEW_FN, viewKeyOf} from './film.js';
 import {PRE, sceneClock} from './flow.js';
-import {CHAPTERS, gaugesAt, liftsAt, NEXT_GEN, NOTICE, snapT, SPEC} from './kin.js';
-import {DEFAULTS, DURATION, explodeEventsOf, explodeOf, sceneStartOf, sceneTAt, stateAtScript} from './script.js';
+import {CHAPTERS, gaugesAt, IN_USE, liftsAt, NEXT_GEN, NOTICE, snapT, SPEC} from './kin.js';
+import {DEFAULTS, DURATION, explodeEventsOf, explodeOf, holdOf, sceneStartOf, sceneTAt, stateAtScript} from './script.js';
 import {createStage} from './stage.js';
 
 const W = 1600;
@@ -50,7 +50,8 @@ function runText(app) {
     (c) => `<h2>${c.n}　${c.name}</h2><p>${c.text}</p>` + (c.lab.length ? c.lab.map((l) => `<div><code>${l.cmd}</code></div>`).join('') + `<small>${c.labWhat}（実機のみ）</small>` : `<small>${c.labNote}</small>`),
   ).join('');
   const next = NEXT_GEN.map((l) => `<li>${l}</li>`).join('');
-  app.innerHTML = `<div class="txt"><h1>GPU ラックの分解</h1><small>WebGL が使えないため文字版を出しています。${NOTICE}。</small>${chapters}<h2>次の世代</h2><ul>${next}</ul></div>`;
+  const inUse = IN_USE.map((l) => `<li>${l}</li>`).join('');
+  app.innerHTML = `<div class="txt"><h1>GPU ラックの分解</h1><small>WebGL が使えないため文字版を出しています。${NOTICE}。</small>${chapters}<h2>実際に使われている所</h2><ul>${inUse}</ul><h2>次の世代</h2><ul>${next}</ul></div>`;
   window.LIVE = {T: 0, tour: false, s: {chapter: 1, scene: '', pull: 0, hops: 0, sentGB: 0, outRatio: 0, amps: 0, flowLpm: 0}, text: true};
 }
 
@@ -116,6 +117,10 @@ export function runLive() {
   let scenePre = 0;
   let chapterT0 = 0;
   let prevChapter = 1;
+  // after a chapter press that sends the pulled tray back, the camera holds on the old view for camHold seconds
+  let camHold = 0;
+  let holdKey = 'front';
+  let offPending = false;
   let changeT = -9; // when the view last changed, for the label fade
   const off = {az: 0, el: 0, k: 1};
   let cam = null;
@@ -152,6 +157,9 @@ export function runLive() {
     const ch = lastChapter(cyc);
     chapterT0 = T - (cyc - ch.t);
     prevChapter = ch.prev;
+    camHold = reduced ? 0 : holdOf(ch.prev, ch.n);
+    holdKey = viewKeyOf(stateAtScript(Math.max(0, ch.t - 1e-6)));
+    offPending = false;
   };
   const setExplode = (to) => {
     exTarget = to;
@@ -173,6 +181,8 @@ export function runLive() {
   const goChapter = (n) => {
     takeOver();
     pulse(`c_${n}`);
+    camHold = reduced ? 0 : holdOf(V.chapter, n);
+    holdKey = viewKeyOf(V);
     prevChapter = V.chapter;
     chapterT0 = T;
     V.chapter = n;
@@ -182,7 +192,8 @@ export function runLive() {
     sceneT0 = T;
     scenePre = PRE;
     changeT = T;
-    Object.assign(off, {az: 0, el: 0, k: 1});
+    offPending = camHold > 0;
+    if (!offPending) Object.assign(off, {az: 0, el: 0, k: 1});
     setExplode(explodeOf(n));
   };
   for (const c of CHAPTERS) ui.btn[`c_${c.n}`].addEventListener('click', () => goChapter(c.n));
@@ -310,6 +321,7 @@ export function runLive() {
     let labelO;
     let sceneT;
     let chK;
+    let chKTray;
     let prevCh;
     let dT;
     let clock;
@@ -320,12 +332,14 @@ export function runLive() {
       lifts = liftsAt(EVENTS, cyc).lifts;
       tgt = camAt(cyc);
       const tc = lastChange(cyc);
-      const wait = sc.chapter === 2 ? 3.3 : 1.5;
+      const hold = holdAt(cyc);
+      const wait = labelWait(sc.chapter, hold);
       labelO = tc === 0 ? 1 : ss(tc + wait, tc + wait + 0.6, cyc);
       cursor = tourCursor(cyc);
       sceneT = sceneTAt(cyc);
       const ch = lastChapter(cyc);
-      chK = ch.t === 0 ? 1 : ss(ch.t + 0.3, ch.t + 1.5, cyc);
+      chK = ch.t === 0 ? 1 : ss(ch.t + hold + 0.3, ch.t + hold + 1.5, cyc);
+      chKTray = ch.t === 0 ? 1 : ss(ch.t + 0.3, ch.t + 1.5, cyc);
       prevCh = ch.prev;
       dT = dTAt(cyc);
     } else {
@@ -334,17 +348,25 @@ export function runLive() {
       lifts = liftsAt(liveEvents, T, liftInit, reduced).lifts;
       const rk = Math.max(0, 1 - (T - ring.t) / 0.55);
       cursor = {x: -99, y: -99, press: false, ring: rk, ringX: ring.x, ringY: ring.y};
-      const wait = sc.chapter === 2 ? 3.3 : 1.5;
+      const hold = changeT === chapterT0 ? camHold : 0;
+      const wait = labelWait(sc.chapter, hold);
       labelO = reduced ? 1 : ss(changeT + wait, changeT + wait + 0.6, T);
       sceneT = sc.scene ? sceneClock(sc.scene, T - sceneT0, scenePre) : 0;
       // reduced motion: the beads jump from step to step
       if (reduced && sc.scene) sceneT = snapT(sc.scene, sceneT);
-      chK = reduced ? 1 : ss(chapterT0 + 0.3, chapterT0 + 1.5, T);
+      chK = reduced ? 1 : ss(chapterT0 + camHold + 0.3, chapterT0 + camHold + 1.5, T);
+      chKTray = reduced ? 1 : ss(chapterT0 + 0.3, chapterT0 + 1.5, T);
       prevCh = prevChapter;
       dT = V.dT;
     }
-    const look = {...lookOf(sc, sceneT, chK, prevCh, clock, {dT, reduced}), lifts};
-    const viewKey = viewKeyOf(sc);
+    const look = {...lookOf(sc, sceneT, chK, prevCh, clock, {dT, reduced, chKTray}), lifts};
+    // the visitor's camera waits for the tray to be in, on the view it had
+    const holding = !AP.on && T - chapterT0 < camHold;
+    if (offPending && !holding) {
+      offPending = false;
+      Object.assign(off, {az: 0, el: 0, k: 1});
+    }
+    const viewKey = holding ? holdKey : viewKeyOf(sc);
     if (!tgt) {
       tgt = {...VIEW_FN[viewKey](0)};
       tgt.az += off.az;

@@ -14,23 +14,24 @@ export const SCRIPT = [
   {t: 18, chapter: 3},
   {t: 19.2, plane: 'data'},
   {t: 22.6, plane: 'ctrl'},
-  // 4 パケットの一生: l2 を 1 往復 → l3 の書き換えに寄る（20 s）
+  // 4 パケットの一生: l2 を 1 往復 → l3 の書き換えに寄る → 宛先不明（FIFO の出口から 5.4 s）（23.2 s）
   {t: 26, chapter: 4},
   {t: 36.2, scene: 'l3'},
   {t: 40.6, zoom: 'rwe'},
+  {t: 43.6, scene: 'flood', skip: 1.8},
   // 5 CPU に上がるとき: arp → storm の計器（16 s）
-  {t: 46, chapter: 5},
-  {t: 57.2, scene: 'storm'},
+  {t: 49.2, chapter: 5},
+  {t: 60.4, scene: 'storm'},
   // 6 混んだとき: 倍率 100 で満杯 → 1200 に切り替え（13.4 s）
-  {t: 62, chapter: 6},
-  {t: 66.8, mult: 1200},
+  {t: 65.2, chapter: 6},
+  {t: 70, mult: 1200},
   // 7 冷却と電力: 横から風 → 全景で PoE（8 s）
-  {t: 75.4, chapter: 7},
-  {t: 80.2, sub7: 'poe'},
+  {t: 78.6, chapter: 7},
+  {t: 83.4, sub7: 'poe'},
   // 一周して外観に戻る（閉じながら）
-  {t: 84.2, chapter: 1, view: 'front'},
+  {t: 87.4, chapter: 1, view: 'front'},
 ];
-export const DURATION = 86.4;
+export const DURATION = 89.6;
 export const DEFAULTS = {chapter: 1, view: 'front', plane: null, scene: null, mult: 100, sub7: 'air', zoom: null};
 
 /** where the chapter's explode wants to be: open for 2-3; from 4 on the NM and the PSU go back in and the cover (and in
@@ -58,13 +59,14 @@ export function stateAtScript(t, script = SCRIPT) {
   return s;
 }
 
-/** the press that started the scene's clock at t: {t0, pre} (a chapter press waits PRE for the camera) */
+/** the press that started the scene's clock at t: {t0, pre} (a chapter press waits PRE for the camera; a scene press with
+ * `skip` starts that many staged seconds into the scene, written as a negative pre) */
 export function sceneStartOf(t, script = SCRIPT) {
   let out = {t0: 0, pre: 0};
   for (const e of script) {
     if (e.t > t) break;
     if (e.chapter !== undefined) out = {t0: e.t, pre: PRE};
-    else if (e.scene !== undefined || e.mult !== undefined) out = {t0: e.t, pre: 0};
+    else if (e.scene !== undefined || e.mult !== undefined) out = {t0: e.t, pre: e.skip ? -e.skip : 0};
   }
   return out;
 }

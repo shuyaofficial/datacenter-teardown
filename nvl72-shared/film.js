@@ -9,7 +9,7 @@ import {makeCursor} from '../kit/cursor.js';
 import {createConsole, SUB_NOTE} from './console.js';
 import {captionOf} from './flow.js';
 import {fanAt, gaugesAt, hopAt, liftsAt, SCENES, SPEC} from './kin.js';
-import {DURATION, explodeEventsOf, lookTargetOf, SCRIPT, sceneTAt, stateAtScript} from './script.js';
+import {DURATION, explodeEventsOf, holdOf, lookTargetOf, SCRIPT, sceneTAt, stateAtScript} from './script.js';
 import {createStage} from './stage.js';
 
 export {DURATION, SCRIPT};
@@ -34,11 +34,16 @@ export const VIEW_FN = {
 };
 /** which camera a state looks through */
 export const viewKeyOf = (sc) => (sc.chapter === 1 ? (sc.view === 'back' ? 'back' : 'front') : ['', '', 'open', 'nvlink', 'ring', 'out', 'power', 'cool'][sc.chapter]);
+// [when the camera starts to move, view]. After a chapter press that sends the pulled tray back, the camera waits
+// (holdOf) until the tray is in, so the two never move at once.
 const CAMS = (() => {
   const out = [];
+  let prev = 1;
   for (const e of SCRIPT) {
-    const key = viewKeyOf(stateAtScript(e.t));
-    if (!out.length || out[out.length - 1][1] !== key) out.push([e.t, key]);
+    const s = stateAtScript(e.t);
+    const key = viewKeyOf(s);
+    if (!out.length || out[out.length - 1][1] !== key) out.push([e.t + (e.chapter !== undefined ? holdOf(prev, e.chapter) : 0), key]);
+    prev = s.chapter;
   }
   return out;
 })();
@@ -71,6 +76,13 @@ export const lastChapter = (t, script = SCRIPT) => {
   for (const e of script) if (e.t <= t && e.chapter !== undefined) c = {t: e.t, prev: c.n, n: e.chapter};
   return c;
 };
+/** how long the camera is holding at t (the tray is still going back after the last chapter press) */
+export const holdAt = (t, script = SCRIPT) => {
+  const ch = lastChapter(t, script);
+  return ch.t > 0 && ch.t === lastChange(t, script) ? holdOf(ch.prev, ch.n) : 0;
+};
+/** seconds after a press that the labels wait: the camera and the pull settle first (the pull takes longer in chapter 2) */
+export const labelWait = (chapter, hold = 0) => (chapter === 2 ? 3.3 : 1.5) + hold;
 /** the temperature difference at t: it glides to a new value over 0.8 s after the slider press */
 export const dTAt = (t, script = SCRIPT) => {
   let v = SPEC.cool.dTDefault;
@@ -123,7 +135,7 @@ const LABELS = {
     ['manS', 'マニホールド（行き）', '冷たい液', 'a'],
     ['manR', 'マニホールド（帰り）', '温まった液', 'a'],
     ['conn', '背面のコネクタ', '差し込むだけでつながる', 'a'],
-    ['psBack', '電源棚（背面）', '空冷のファン', 'a'],
+    ['psBackTop', '電源棚（背面）', '上段の 1 台・空冷のファン', 'a'],
   ],
   open: [
     ['lid', '天板', '最初に持ち上がる', 'u'],
@@ -323,7 +335,8 @@ export function makeConsoleFrame(ui, st) {
 export function lookOf(sc, sceneT, chK, prevChapter, T, extra = {}) {
   const a = lookTargetOf(prevChapter);
   const b = lookTargetOf(sc.chapter);
-  const mix = (key) => a[key] + (b[key] - a[key]) * chK;
+  // the lid goes with the tray (chKTray, no hold); everything else waits for the tray to be in (chK)
+  const mix = (key) => a[key] + (b[key] - a[key]) * (key === 'lidAway' ? extra.chKTray ?? chK : chK);
   const scene = sc.scene;
   const ch = sc.chapter;
   const hopChip = scene === 'hop' ? hopAt(sceneT).chip : -1;
@@ -376,10 +389,11 @@ export function makeFilm() {
         const viewKey = viewKeyOf(sc);
         const sceneT = sceneTAt(t);
         const dT = dTAt(t);
-        const look = {...lookOf(sc, sceneT, ch.t === 0 ? 1 : ss(ch.t + 0.3, ch.t + 1.5, t), ch.prev, t, {dT}), lifts};
+        const hold = holdAt(t);
+        const look = {...lookOf(sc, sceneT, ch.t === 0 ? 1 : ss(ch.t + hold + 0.3, ch.t + hold + 1.5, t), ch.prev, t, {dT, chKTray: ch.t === 0 ? 1 : ss(ch.t + 0.3, ch.t + 1.5, t)}), lifts};
         st.frame(look, {...cam, az: cam.az * D2R, el: cam.el * D2R});
         // the labels wait for the camera and the pull to settle
-        const wait = sc.chapter === 2 ? 3.3 : 1.5;
+        const wait = labelWait(sc.chapter, hold);
         const labelO = tc === 0 ? 1 : ss(tc + wait, tc + wait + 0.6, t);
         frame({sc, viewKey, labelO, exOpen: sc.chapter === 2, sceneT, dT, pull, cursor: cursorAt(t), look});
         return {};

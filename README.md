@@ -7,7 +7,7 @@
 
 | 機器 | 見どころ | ページ |
 |---|---|---|
-| スイッチ（Catalyst 9300-48P を模した 1U） | フレームは ASIC の中で 256 B の切れ端に分かれ、本体はバッファ（PBC）に置かれたまま 64 B の札だけが検索とキューを回る。CPU に上がるのは自分宛てと制御だけ（ハード 190.48 Mpps に対して CPU は約 19,000 pps）。2本の 1G が1本に集まると出口のキューは 1.2288 ms で満杯になる | [switch-live.html](https://shuyaofficial.github.io/datacenter-teardown/switch-live.html) |
+| スイッチ（Catalyst 9300-48P を模した 1U） | フレームは ASIC の中で 256 B の切れ端に分かれ、本体はバッファ（PBC）に置かれたまま 64 B の札だけが検索とキューを回る。CPU に上がるのは自分宛てと制御だけ（ハード 190.48 Mpps に対して CPU は約 19,000 pps）。2本の 1G が1本に集まると出口のキューは 1.2288 ms で満杯になる。会社のフロアで PC や電話をつなぐ種類で、AI の GPU どうしをつなぐ所には使わない | [switch-live.html](https://shuyaofficial.github.io/datacenter-teardown/switch-live.html) |
 | GPU ラック（GB200 NVL72 を模した 72 GPU） | GPU 1個の 18 本のリンクは 18 個のスイッチチップに1本ずつ行くので、どの GPU の組もスイッチ1段で届く（ポートは 1,296 = 1,296）。ラックの外（ConnectX-7 400 Gb/s）は中（NVLink 1.8 TB/s）の 18 分の1。all-reduce をスイッチの中で足すと、GPU 1個が送る量は 1.972 GB から 1 GB になる | [nvl72-live.html](https://shuyaofficial.github.io/datacenter-teardown/nvl72-live.html) |
 
 何も触らないと自動でツアーが流れます。どこかをクリックすると操作できるようになり、25秒触らないとツアーに戻ります。
@@ -31,6 +31,12 @@
 5. ラックの外へ（NVLink と ConnectX-7 の 18 倍の差）
 6. 120 kW を運び込む（電源棚と母線）
 7. 液で冷やす（温度差と流量）
+
+## GPU ラックが実際に使われている所
+
+- OpenAI: テキサス州アビリーンの Stargate に、2025年6月から GB200 のラックが入り始めた（OpenAI の2025年7月の発表。[The Register](https://www.theregister.com/2025/07/22/openai_oracle_gpus/)）。
+- Microsoft Azure: 2025年10月、OpenAI 向けに GB300 NVL72 を 64 ラック（4,608 GPU）つないだクラスタを公開。ラックどうしは Quantum-X800 InfiniBand（[Azure Blog](https://azure.microsoft.com/en-us/blog/microsoft-azure-delivers-the-first-large-scale-cluster-with-nvidia-gb300-nvl72-for-openai-workloads/)）。
+- Anthropic: 2025-11-18 に、NVIDIA の Grace Blackwell と Vera Rubin のシステムで最大 1 GW を使うと発表（[Anthropic](https://www.anthropic.com/news/microsoft-nvidia-anthropic-announce-strategic-partnerships)）。NVL72 という型番は書かれていない。主力は Trainium と Google TPU。
 
 ## 数値の出どころ
 

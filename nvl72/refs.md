@@ -14,6 +14,9 @@ NVIDIA GB200 NVL72（GPU 72個を1つの NVLink の領域で結んだラック�
 6. NVIDIA Technical Blog, *NVIDIA Contributes NVIDIA GB200 NVL72 Designs to Open Compute Project*。https://developer.nvidia.com/blog/nvidia-contributes-nvidia-gb200-nvl72-designs-to-open-compute-project
 7. Supermicro, *SuperCluster GB200 NVL72 Datasheet*。https://www.supermicro.com/datasheet/datasheet_SuperCluster_GB200_NVL72.pdf — NVIDIA が書いていない外形寸法とトレイの並びだけに使う
 8. NVIDIA, *GB300 NVL72* 製品ページ https://www.nvidia.com/en-us/data-center/gb300-nvl72/ と *Vera Rubin NVL72* 製品ページ https://www.nvidia.com/en-us/data-center/vera-rubin-nvl72/ — 次の世代の注記だけに使う
+9. The Register, *OpenAI and Oracle's Stargate site in Abilene starts taking GB200 racks*（2025-07-22）。https://www.theregister.com/2025/07/22/openai_oracle_gpus/ — OpenAI の 2025年7月の発表の報道。「実際に使われている所」だけに使う
+10. Microsoft Azure Blog, *Microsoft Azure delivers the first large-scale cluster with NVIDIA GB300 NVL72 for OpenAI workloads*（2025年10月）。https://azure.microsoft.com/en-us/blog/microsoft-azure-delivers-the-first-large-scale-cluster-with-nvidia-gb300-nvl72-for-openai-workloads/ — 同上
+11. Anthropic, *Microsoft, NVIDIA and Anthropic announce strategic partnerships*（2025-11-18）。https://www.anthropic.com/news/microsoft-nvidia-anthropic-announce-strategic-partnerships — 同上
 
 ## ラック（出典1、6、7）
 | 項目 | 値 | 根拠 |
@@ -107,3 +110,9 @@ NVIDIA GB200 NVL72（GPU 72個を1つの NVLink の領域で結んだラック�
 ## 次の世代（画面の脚注）
 - GB300 NVL72: GPU が Blackwell Ultra、HBM3e はラックで 20 TB、NIC は ConnectX-8（GPU 1個に 800 Gb/s）。NVLink は同じ 130 TB/s（出典8）。
 - Vera Rubin NVL72: HBM4、NVLink 6 でラック 216 TB/s（GPU 1個 3 TB/s）、CPU は Vera（出典8）。
+
+## 実際に使われている所（1 章の計器の下の脚注。出典 9〜11 にあることだけ）
+- OpenAI: テキサス州アビリーンの Stargate に、2025年6月から GB200 のラックが入り始めた（OpenAI の 2025年7月の発表。出典9）。
+- Microsoft Azure: 2025年10月、OpenAI 向けに GB300 NVL72 を 64 ラック（4,608 GPU）つないだクラスタを公開。ラックどうしは Quantum-X800 InfiniBand（出典10）。
+- Anthropic: 2025-11-18 に、NVIDIA の Grace Blackwell と Vera Rubin のシステムで最大 1 GW を使うと発表。**発表に NVL72 という型番は書かれていない**。Anthropic の主力は Trainium と Google TPU（出典11）。
+- ここに無いこと（台数・場所・契約の額など）は書かない。

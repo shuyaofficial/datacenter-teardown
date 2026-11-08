@@ -1,4 +1,4 @@
-{"duration": 86.4,
+{"duration": 89.6,
  "beats": {
   "view_back": 4,
   "chapter2": 8,
@@ -8,11 +8,12 @@
   "chapter4": 26,
   "scene_l3": 36.2,
   "zoom_rwe": 40.6,
-  "chapter5": 46,
-  "scene_storm": 57.2,
-  "chapter6": 62,
-  "mult_1200": 66.8,
-  "chapter7": 75.4,
-  "sub7_poe": 80.2,
-  "chapter1": 84.2
+  "scene_flood": 43.6,
+  "chapter5": 49.2,
+  "scene_storm": 60.4,
+  "chapter6": 65.2,
+  "mult_1200": 70,
+  "chapter7": 78.6,
+  "sub7_poe": 83.4,
+  "chapter1": 87.4
  }}

@@ -328,6 +328,12 @@ export const CHAPTERS = [
   },
 ];
 export const chapterOf = (n) => CHAPTERS[clamp(Math.round(n) - 1, 0, CHAPTERS.length - 1)];
+/** refs.md 「実際に使われている所」（1 章の脚注）。各社の発表にあることだけ。出典の URL は refs.md */
+export const IN_USE = [
+  'OpenAI: テキサス州アビリーンの Stargate に、2025 年 6 月から GB200 のラックが入り始めた。',
+  'Azure: 2025 年 10 月、OpenAI 向けに GB300 NVL72 を 64 ラック（4,608 GPU）つないだ。ラック間は Quantum-X800 InfiniBand。',
+  'Anthropic: 2025-11-18 に Grace Blackwell と Vera Rubin で最大 1 GW と発表。NVL72 とは書かれていない。主力は Trainium と Google TPU。',
+];
 /** refs.md 「次の世代」（画面の脚注） */
 export const NEXT_GEN = [
   'GB300 NVL72: GPU が Blackwell Ultra、HBM3e はラックで 20 TB、NIC は ConnectX-8（GPU 1 個に 800 Gb/s）。NVLink は同じ 130 TB/s。',

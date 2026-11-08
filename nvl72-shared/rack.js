@@ -284,7 +284,7 @@ export function buildRack() {
   const pY = (n) => SLOTS.find((s) => s.kind === 'power' && s.n === n).y0;
   const torY = SLOTS.find((s) => s.kind === 'tor' && s.n === 1).y0;
   pin('tor', F, 120, torY + 30, zFront + 1);
-  pin('psTop', F, -110, pY(2) + 30, zFront + 3);
+  pin('psTop', F, 0, pY(1) + 21, zFront + 3); // the middle of the top shelf's face, between two supplies
   pin('psBot', F, -110, pY(7) + 30, zFront + 3);
   pin('compute', F, 40, cY(6) + 21, zFront + 2);
   pin('computeLo', F, 40, cY(14) + 21, zFront + 2);
@@ -300,6 +300,7 @@ export function buildRack() {
   pin('manR', F, BACK.manX[1], yHi - 260, BACK.manZ - BACK.manR);
   pin('hose', F, (TL.qdX[0] + BACK.manX[0]) / 2, cY(5) + 21, BACK.manZ - 4);
   pin('psBack', F, 90, pY(3) + 30, -306 - 2);
+  pin('psBackTop', F, 73.2, pY(1) + 21, -306 - 2); // the top shelf's back, on the solid strip between two fans
   pin('psBackLo', F, 90, pY(6) + 30, -306 - 2);
   pin('psFan', F, -120, pY(2) + 32, -306 - 2);
   pin('psFanLo', F, -120, pY(7) + 32, -306 - 2);

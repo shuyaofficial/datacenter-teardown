@@ -49,7 +49,7 @@ import {
   usableKW,
 } from '../nvl72-shared/kin.js';
 import {along, captionOf, chipWorld, computeY, coolPaths, dashes, DASH, fanPose, hopLegs, HOLD, linkPath, outBeads, PRE, RACK, ringBeads, sceneClock, sharpBeads, SLOTS, switchY, TL, TRAY} from '../nvl72-shared/flow.js';
-import {beatsOf, DURATION, explodeEventsOf, explodeOf, sceneTAt, SCRIPT, stateAtScript} from '../nvl72-shared/script.js';
+import {beatsOf, DURATION, explodeEventsOf, explodeOf, holdOf, sceneTAt, SCRIPT, stateAtScript} from '../nvl72-shared/script.js';
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg}: ${a} vs ${b} (±${tol})`);
 let count = 0;
@@ -351,6 +351,27 @@ test('ツアー: fan は描き切ってから hop、hop は着いてから章 4�
   near(sharpAt(sceneTAt(SCRIPT.find((e) => e.chapter === 5).t - 0.01)).sentGB, 1, 1e-9, 'sharp done');
   assert.equal(stateAtScript(76).dT, 5);
   assert.deepEqual(explodeEventsOf().map((e) => e.t), [10, 22, 52, 62]);
+});
+
+test('ツアー: トレイが戻る章の切り替えは、戻り切るまでカメラが待つ（holdOf）', () => {
+  assert.equal(holdOf(1, 2), 0, 'pulling out does not wait');
+  assert.equal(holdOf(3, 4), 0, 'no tray, no wait');
+  // 2 → 3 and 5 → 6: every layer is back within the hold
+  for (const [a, b] of [[2, 3], [5, 6], [2, 5]]) {
+    const hold = holdOf(a, b);
+    assert.ok(hold > 0, `${a}→${b}`);
+    const ev = [{t: 0, to: explodeOf(a)}, {t: 100, to: explodeOf(b)}];
+    const at = (t) => liftsAt(ev, t, [0, 0, 0, 0, 0]).lifts;
+    const lo = at(99.9);
+    const hi = at(100 + hold);
+    explodeOf(a).forEach((v, k) => {
+      if (explodeOf(b)[k] < v) near(hi[k], explodeOf(b)[k], 1e-9, `layer ${k} back at ${a}→${b}`);
+      assert.ok(lo[k] >= hi[k] - 1e-9 || explodeOf(b)[k] >= v);
+    });
+  }
+  // the tour's camera starts after the hold, the next press is later than that
+  const ts = SCRIPT.filter((e) => e.chapter !== undefined).map((e) => e.t);
+  assert.ok(ts[3] - ts[2] > holdOf(2, 3) + 1.8 && ts[6] - ts[5] > holdOf(5, 6) + 1.8);
 });
 
 test('scene clock: 章を押すと PRE だけ待ち、終わると HOLD だけ止まってから繰り返す', () => {

@@ -1,7 +1,7 @@
 // The auto tour's script, no three.js (the tests and the timeline check read it in node). SCRIPT is the operator's
 // presses: a chapter button, a view / scene button, the cooling slider. Everything that moves is a pure function of the
 // clock these presses make; beatsOf() lists the moments timeline.json carries.
-import {CHAPTERS, SPEC} from './kin.js';
+import {CHAPTERS, EXPLODE, SPEC} from './kin.js';
 import {PRE, sceneClock} from './flow.js';
 
 export const SCRIPT = [
@@ -31,6 +31,17 @@ export const DEFAULTS = {chapter: 1, view: 'front', scene: null, dT: SPEC.cool.d
 
 /** where the pulled tray's five layers want to be in a chapter: [pull, lid, plates, chips, io] */
 export const explodeOf = (chapter) => (chapter === 2 ? [1, 1, 1, 1, 1] : chapter === 5 ? [1, 1, 0, 0, 0] : [0, 0, 0, 0, 0]);
+/** seconds after a chapter press that the camera (and the chapter's look) wait while the pulled tray goes back: the
+ * slowest layer that moves down (kin.js EXPLODE.close) plus a short beat, so the tray and the camera never move at once */
+export function holdOf(prev, next) {
+  const a = explodeOf(prev);
+  const b = explodeOf(next);
+  let end = 0;
+  a.forEach((v, k) => {
+    if (b[k] < v - 1e-6) end = Math.max(end, EXPLODE.close.delay[k] + EXPLODE.close.dur[k] * Math.max(0.35, v - b[k]));
+  });
+  return end > 0 ? Math.round((end + 0.1) * 100) / 100 : 0;
+}
 /** the chapter's look: the switch trays slide forward and turn see-through (3), the side panels come off (2-7), the
  * lifted lid is taken away (5) */
 export const lookTargetOf = (chapter) => ({slide: chapter === 3 ? 1 : 0, sides: chapter === 1 ? 0 : 1, lidAway: chapter === 5 ? 1 : 0});
