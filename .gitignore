@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+# ビルドとレビュー用の静止画。公開するページは tools/publish-pages.sh が docs/ にコピーする
+teardown-out/
+__pycache__/
